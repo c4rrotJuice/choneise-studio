@@ -1,11 +1,14 @@
-import { supabase } from "@/lib/supabase/client"
-
-export default async function Home() {
-  const { data } = await supabase.from("test").select("*")
-
+export default function Home() {
   return (
-    <pre>
-      {JSON.stringify(data, null, 2)}
-    </pre>
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
+      <section className="mx-auto max-w-3xl text-center">
+        <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+          Studio scaffold
+        </p>
+        <h1 className="text-4xl font-semibold tracking-normal sm:text-6xl">
+          Choneise Studio
+        </h1>
+      </section>
+    </main>
   )
 }
