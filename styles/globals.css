@@ -5,14 +5,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light dark;
-}
-
 * {
   box-sizing: border-box;
 }
 
+html {
+  background: var(--studio-color-bg);
+  color: var(--studio-color-text);
+}
+
 body {
+  background: var(--studio-color-bg);
+  color: var(--studio-color-text);
+  font-family: var(--studio-font-sans);
   margin: 0;
+  min-block-size: 100vh;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
 }

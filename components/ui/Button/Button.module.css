@@ -22,9 +22,6 @@
     background-color var(--studio-duration-fast) var(--studio-ease-standard),
     border-color var(--studio-duration-fast) var(--studio-ease-standard),
     color var(--studio-duration-fast) var(--studio-ease-standard);
-}
-
-.root {
   white-space: normal;
 }
 

@@ -32,7 +32,7 @@ The token scale is intentionally limited. Avoid one-off font sizes unless a new 
 
 ## Component Rules
 
-No components are implemented yet. When components are added, they should follow these rules:
+The active component set lives in `components/` and should follow these rules:
 
 - Prefer semantic color tokens over palette primitives.
 - Use thin borders and subtle surface changes instead of heavy shadows.
@@ -45,6 +45,6 @@ No components are implemented yet. When components are added, they should follow
 
 ## Motion
 
-Motion primitives cover fade, upward reveal, scale reveal, and small lift interactions. Durations are short to medium, with a longer reveal token reserved for page-level entrances. Reduced motion collapses movement and duration while preserving state changes.
+Motion primitives cover fade, upward reveal, and staggered entrances. Durations are short to medium, with a longer reveal token reserved for page-level entrances. Reduced motion collapses movement and duration while preserving state changes.
 
 Motion should not become a brand effect. It should make content arrival and interaction state legible.

@@ -1,0 +1,24 @@
+.root {
+  display: grid;
+}
+
+.gapCompact {
+  gap: var(--studio-space-3);
+}
+
+.gapStandard {
+  gap: var(--studio-space-6);
+}
+
+.gapEditorial {
+  gap: var(--studio-space-10);
+}
+
+.alignStart {
+  justify-items: start;
+}
+
+.alignCenter {
+  justify-items: center;
+  text-align: center;
+}
