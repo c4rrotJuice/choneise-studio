@@ -1,82 +1,93 @@
 import { Logo } from "@/components/Logo"
 import { Container } from "@/components/layout/Container"
-import { Section } from "@/components/layout/Section"
+import { HeroBackground } from "@/components/layout/hero-background"
 import { Stack } from "@/components/layout/Stack"
-import { Reveal, Stagger } from "@/components/motion"
-import { ProjectGrid, type ProjectGridItem } from "@/components/project"
-import { Heading } from "@/components/typography/Heading"
-import { Text } from "@/components/typography/Text"
 import { Button } from "@/components/ui/Button"
-
-const selectedProjects: readonly ProjectGridItem[] = [
-  {
-    id: "grade-converter",
-    description: "Convert grades across different systems. Simple, accurate, useful.",
-    meta: ["Tool", "v1.0.2"],
-    status: "launched",
-    title: "Grade Converter",
-  },
-  {
-    id: "multilingual-explorer",
-    description: "Explore meanings across languages and contexts.",
-    meta: ["Tool", "v0.3.1"],
-    status: "wip",
-    title: "Multilingual Explorer",
-  },
-  {
-    id: "quiet-journal",
-    description: "A minimal writing space for thinking in public.",
-    meta: ["Experiment", "v0.1.0"],
-    status: "archived",
-    title: "Quiet Journal",
-  },
-] as const
+import { LogoMarquee } from "@/components/ui/logo-marquee"
+import styles from "./page.module.css"
 
 export default function Home() {
   return (
-    <main>
-      <Section spacing="editorial">
+    <main className={styles.page}>
+      <div className={styles.heroShell}>
+        <HeroBackground />
         <Container>
-          <Stack gap="editorial">
-            <Logo tone="muted" />
-            <Reveal as="header">
-              <Stack gap="standard">
-                <Text as="p" size="small" tone="strong">
-                  Independent Product Studio
-                </Text>
-                <Heading as="h1" size="1">
-                  Build things worth existing.
-                </Heading>
-                <Text size="large">
-                  Choneise is a digital workshop for building useful software, tools, and systems on
-                  the web. Some for ourselves, some for others. All with care.
-                </Text>
-                <Button as="a" href="#studio" variant="primary">
-                  Enter Studio
-                </Button>
-              </Stack>
-            </Reveal>
-          </Stack>
-        </Container>
-      </Section>
+          <nav className={styles.nav} aria-label="Primary">
+            <Logo as="a" href="/" tone="muted" />
+            <div className={styles.navLinks}>
+              <a className={`${styles.navLink} ${styles.navLinkActive}`} href="/" aria-current="page">
+                Studio
+              </a>
+              <a className={styles.navLink} href="#studio">
+                Projects
+              </a>
+              <a className={styles.navLink} href="#studio">
+                Tools
+              </a>
+              <a className={styles.navLink} href="#studio">
+                Experiments
+              </a>
+              <a className={styles.navLink} href="#studio">
+                Notes
+              </a>
+              <a className={styles.navLink} href="#studio">
+                About
+              </a>
+            </div>
+            <Button as="a" href="#studio" className={styles.navCta}>
+              Enter Studio
+            </Button>
+          </nav>
 
-      <Section id="studio" spacing="standard" variant="subtle">
-        <Container>
-          <Stack gap="standard">
-            <Stack gap="compact">
-              <Text as="p" size="small" tone="subtle">
-                Currently in the studio
-              </Text>
-              <Heading as="h2" size="3">
-                Selected Work
-              </Heading>
+          <section className={styles.hero} aria-labelledby="hero-title">
+            <Stack className={styles.heroContent} gap="standard">
+              <p className={styles.eyebrow}>Independent Product Studio</p>
+              <div>
+                <h1 id="hero-title" className={styles.heroTitle}>
+                  <span className={styles.heroTitlePrimary}>Build things</span>
+                  <span>worth existing.</span>
+                </h1>
+                <p className={styles.heroCopy}>
+                  Choneise is a digital workshop for building useful software, tools and systems on
+                  the web. Some for ourselves, some for others. All with care.
+                </p>
+                <Button as="a" href="#studio" variant="primary" className={styles.heroCta}>
+                  View our Tools
+                </Button>
+              </div>
             </Stack>
-            <Stagger>
-              <ProjectGrid projects={selectedProjects} />
-            </Stagger>
-          </Stack>
+            <div className={styles.visualSpace} />
+          </section>
         </Container>
-      </Section>
+
+        <div className={styles.scrollCue}>
+          <span>Scroll to explore</span>
+          <span className={styles.scrollDot} />
+        </div>
+      </div>
+      <LogoMarquee />
+      <Container>
+        <section id="studio" className={styles.narrative} aria-labelledby="studio-title">
+          <p className={styles.narrativeKicker}>Studio Narrative</p>
+          <div className={styles.narrativeGrid}>
+            <h2 id="studio-title" className={styles.narrativeTitle}>
+              What Choneise Is
+            </h2>
+            <div className={styles.narrativeCopy}>
+              <p>
+                Choneise is an independent product studio shaped around product-first work:
+                practical software, durable systems, and focused experiments that can become more
+                than one-off releases.
+              </p>
+              <p>
+                We build for long-term ownership, choosing selective client work when the problem
+                deserves the same care as our own tools. The studio stays small so the work can stay
+                deliberate.
+              </p>
+            </div>
+          </div>
+        </section>
+      </Container>
     </main>
   )
 }
