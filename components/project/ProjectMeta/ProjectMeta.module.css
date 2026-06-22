@@ -1,0 +1,10 @@
+.root {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--studio-space-2);
+}
+
+.item {
+  min-inline-size: 0;
+}

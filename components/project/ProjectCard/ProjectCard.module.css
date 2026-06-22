@@ -1,0 +1,29 @@
+.root {
+  block-size: 100%;
+}
+
+.body {
+  display: grid;
+  gap: var(--studio-space-5);
+}
+
+.header {
+  display: grid;
+  gap: var(--studio-space-3);
+}
+
+.titleRow {
+  align-items: start;
+  display: flex;
+  gap: var(--studio-space-4);
+  justify-content: space-between;
+}
+
+.status {
+  flex: none;
+  margin-block-start: var(--studio-space-1);
+}
+
+.meta {
+  margin-block-start: var(--studio-space-1);
+}
