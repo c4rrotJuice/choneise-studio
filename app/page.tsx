@@ -1,147 +1,20 @@
-import { Logo } from "@/components/Logo"
 import { Container } from "@/components/layout/Container"
 import { HeroBackground } from "@/components/layout/hero-background"
 import { Stack } from "@/components/layout/Stack"
-import { ProjectCard, type ProjectCardProps } from "@/components/project/project-card"
+import { ProjectCard } from "@/components/project/project-card"
+import { SiteFooter, SiteNav } from "@/components/site/chrome"
 import { Button } from "@/components/ui/Button"
 import { LogoMarquee } from "@/components/ui/logo-marquee"
+import { currentBuilds, featuredProjects, philosophyPrinciples } from "./site-data"
 import styles from "./page.module.css"
-
-const featuredProjects: readonly ProjectCardProps[] = [
-  {
-    description: "Convert grades across different systems. Simple, accurate, useful.",
-    kind: "Tool",
-    status: "Live",
-    title: "Grade Converter",
-    version: "v1.0.2",
-  },
-  {
-    description: "Estimate mobile money transfer costs before sending everyday payments.",
-    kind: "Tool",
-    status: "Building",
-    title: "Mobile Money Fee Calculator",
-    version: "v0.4.0",
-  },
-  {
-    description: "Explore meanings across languages, contexts, and translation paths.",
-    kind: "Experiment",
-    status: "Experiment",
-    title: "Multilingual Explorer",
-    version: "v0.3.1",
-  },
-  {
-    description: "A minimal writing space for quiet notes, drafts, and public thinking.",
-    kind: "Experiment",
-    status: "Dormant",
-    title: "Quiet Journal",
-    version: "v0.1.0",
-  },
-]
-
-const currentBuilds = [
-  {
-    label: "Now",
-    title: "Sharpening small public tools",
-    copy: "Improving utility, copy, and release quality for the studio's first live products.",
-  },
-  {
-    label: "Next",
-    title: "Packaging reusable systems",
-    copy: "Turning repeated product patterns into stable components, templates, and internal tooling.",
-  },
-  {
-    label: "Exploring",
-    title: "Language-aware workflows",
-    copy: "Testing practical multilingual interfaces for learning, publishing, and everyday web tasks.",
-  },
-]
-
-const philosophyPrinciples = [
-  {
-    title: "Build useful things",
-    copy: "Start with a clear job, keep the interface honest, and ship work that earns its place.",
-  },
-  {
-    title: "Own the system",
-    copy: "Treat product, design, code, operations, and maintenance as one connected responsibility.",
-  },
-  {
-    title: "Move deliberately",
-    copy: "Choose slower decisions when they protect quality, focus, and long-term ownership.",
-  },
-]
-
-const footerColumns = [
-  {
-    title: "Studio",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Philosophy", href: "#philosophy" },
-    ],
-  },
-  {
-    title: "Projects",
-    links: [
-      { label: "Featured Work", href: "/projects" },
-      { label: "Current Builds", href: "#current-builds" },
-    ],
-  },
-  {
-    title: "Tools",
-    links: [
-      { label: "Grade Converter", href: "/projects" },
-      { label: "Fee Calculator", href: "/projects" },
-    ],
-  },
-  {
-    title: "Experiments",
-    links: [
-      { label: "Explorer", href: "/experiments" },
-      { label: "Journal", href: "/experiments" },
-    ],
-  },
-  {
-    title: "Notes",
-    links: [
-      { label: "Writing", href: "/notes" },
-      { label: "Updates", href: "/notes" },
-    ],
-  },
-]
 
 export default function Home() {
   return (
     <main className={styles.page}>
       <div className={styles.heroShell}>
         <HeroBackground />
+        <SiteNav active="/" />
         <Container>
-          <nav className={styles.nav} aria-label="Primary">
-            <Logo as="a" href="/" tone="muted" />
-            <div className={styles.navLinks}>
-              <a className={`${styles.navLink} ${styles.navLinkActive}`} href="/" aria-current="page">
-                Studio
-              </a>
-              <a className={styles.navLink} href="#studio">
-                Projects
-              </a>
-              <a className={styles.navLink} href="#studio">
-                Tools
-              </a>
-              <a className={styles.navLink} href="#studio">
-                Experiments
-              </a>
-              <a className={styles.navLink} href="#studio">
-                Notes
-              </a>
-              <a className={styles.navLink} href="#studio">
-                About
-              </a>
-            </div>
-            <Button as="a" href="#studio" className={styles.navCta}>
-              Enter Studio
-            </Button>
-          </nav>
-
           <section className={styles.hero} aria-labelledby="hero-title">
             <Stack className={styles.heroContent} gap="standard">
               <p className={styles.eyebrow}>Independent Product Studio</p>
@@ -154,7 +27,7 @@ export default function Home() {
                   Choneise is a digital workshop for building useful software, tools and systems on
                   the web. Some for ourselves, some for others. All with care.
                 </p>
-                <Button as="a" href="#studio" variant="primary" className={styles.heroCta}>
+                <Button as="a" href="/projects" variant="primary" className={styles.heroCta}>
                   View our Tools
                 </Button>
               </div>
@@ -192,7 +65,7 @@ export default function Home() {
         </section>
       </Container>
       <Container>
-        <section className={styles.featuredWork} aria-labelledby="featured-work-title">
+        <section id="featured-work" className={styles.featuredWork} aria-labelledby="featured-work-title">
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionKicker}>Featured Work</p>
@@ -254,42 +127,7 @@ export default function Home() {
           </div>
         </section>
       </Container>
-      <footer className={styles.footer}>
-        <Container>
-          <div className={styles.footerGrid}>
-            <div className={styles.footerManifesto}>
-              <Logo as="a" href="/" tone="muted" />
-              <p>Building useful things on the web.</p>
-            </div>
-            <nav className={styles.footerColumns} aria-label="Footer">
-              {footerColumns.map((column) => (
-                <div className={styles.footerColumn} key={column.title}>
-                  <h2 className={styles.footerHeading}>{column.title}</h2>
-                  <ul className={styles.footerLinks}>
-                    {column.links.map((link) => (
-                      <li key={link.label}>
-                        <a href={link.href}>{link.label}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </nav>
-          </div>
-          <div className={styles.footerBottom}>
-            <p>© 2026 Choneise Studio</p>
-            <div className={styles.socialLinks}>
-              <a href="https://github.com" aria-label="GitHub">
-                GitHub
-              </a>
-              <a href="mailto:hello@choneise.com">Email</a>
-              <a href="https://x.com" aria-label="X">
-                X
-              </a>
-            </div>
-          </div>
-        </Container>
-      </footer>
+      <SiteFooter />
     </main>
   )
 }

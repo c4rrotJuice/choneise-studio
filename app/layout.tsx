@@ -1,11 +1,8 @@
-import type { Metadata } from "next"
 import "@/config/env"
 import "@/styles/globals.css"
+import { organizationJsonLd, websiteJsonLd } from "./metadata"
 
-export const metadata: Metadata = {
-  title: "Choneise Studio",
-  description: "Choneise Studio scaffold",
-}
+export { metadata } from "./metadata"
 
 export default function RootLayout({
   children,
@@ -14,7 +11,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
+          }}
+        />
+        {children}
+      </body>
     </html>
   )
 }
