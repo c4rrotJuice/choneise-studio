@@ -15,4 +15,4 @@ Use Cloudflare Pages for this static scaffold.
 
 - Build command: `npm run build`
 - Build output directory: `out`
-- Node version: `20` or newer
+- Node version: `22` or newer
