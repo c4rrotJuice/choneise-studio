@@ -1,0 +1,36 @@
+.root {
+  align-items: center;
+  color: var(--studio-color-text-muted);
+  display: inline-flex;
+  font-family: var(--studio-font-sans);
+  font-size: var(--studio-text-xs);
+  font-weight: var(--studio-font-weight-medium);
+  gap: var(--studio-space-2);
+  letter-spacing: var(--studio-tracking-label);
+  line-height: var(--studio-leading-heading);
+  text-transform: uppercase;
+}
+
+.root::before {
+  background: currentColor;
+  border-radius: var(--studio-radius-pill);
+  content: "";
+  block-size: var(--studio-space-2);
+  inline-size: var(--studio-space-2);
+}
+
+.statusBuild {
+  color: var(--studio-color-accent-warm);
+}
+
+.statusLive {
+  color: var(--studio-color-accent);
+}
+
+.statusDraft {
+  color: var(--studio-color-text-subtle);
+}
+
+.statusExperimental {
+  color: var(--studio-color-text-muted);
+}

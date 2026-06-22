@@ -1,0 +1,56 @@
+.root {
+  display: grid;
+  grid-template-columns: repeat(var(--studio-grid-columns), minmax(0, 1fr));
+}
+
+.columnsOne {
+  --studio-grid-columns: 1;
+}
+
+.columnsTwo,
+.columnsThree,
+.columnsFour {
+  --studio-grid-columns: 1;
+}
+
+.gapCompact {
+  gap: var(--studio-space-4);
+}
+
+.gapStandard {
+  gap: var(--studio-space-6);
+}
+
+.gapEditorial {
+  gap: var(--studio-space-8);
+}
+
+@media (min-width: 48rem) {
+  .columnsTwo,
+  .columnsThree,
+  .columnsFour {
+    --studio-grid-columns: 2;
+  }
+
+  .gapCompact {
+    gap: var(--studio-space-5);
+  }
+
+  .gapStandard {
+    gap: var(--studio-space-8);
+  }
+
+  .gapEditorial {
+    gap: var(--studio-space-10);
+  }
+}
+
+@media (min-width: 64rem) {
+  .columnsThree {
+    --studio-grid-columns: 3;
+  }
+
+  .columnsFour {
+    --studio-grid-columns: 4;
+  }
+}

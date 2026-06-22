@@ -1,0 +1,82 @@
+:root {
+  --studio-reveal-opacity-from: 0;
+  --studio-reveal-opacity-to: 1;
+  --studio-reveal-y: 1rem;
+  --studio-reveal-scale: 0.98;
+  --studio-transform-rest: translate3d(0, 0, 0) scale(1);
+  --studio-transform-lift: translate3d(0, -0.125rem, 0);
+}
+
+@keyframes studio-fade-in {
+  from {
+    opacity: var(--studio-reveal-opacity-from);
+  }
+
+  to {
+    opacity: var(--studio-reveal-opacity-to);
+  }
+}
+
+@keyframes studio-reveal-up {
+  from {
+    opacity: var(--studio-reveal-opacity-from);
+    transform: translate3d(0, var(--studio-reveal-y), 0);
+  }
+
+  to {
+    opacity: var(--studio-reveal-opacity-to);
+    transform: var(--studio-transform-rest);
+  }
+}
+
+@keyframes studio-reveal-scale {
+  from {
+    opacity: var(--studio-reveal-opacity-from);
+    transform: scale(var(--studio-reveal-scale));
+  }
+
+  to {
+    opacity: var(--studio-reveal-opacity-to);
+    transform: var(--studio-transform-rest);
+  }
+}
+
+.studio-motion-fade {
+  animation: studio-fade-in var(--studio-duration-base) var(--studio-ease-standard) both;
+}
+
+.studio-motion-reveal {
+  animation: studio-reveal-up var(--studio-duration-reveal) var(--studio-ease-enter) both;
+}
+
+.studio-motion-scale {
+  animation: studio-reveal-scale var(--studio-duration-slow) var(--studio-ease-enter) both;
+}
+
+.studio-motion-lift {
+  transition:
+    opacity var(--studio-duration-fast) var(--studio-ease-standard),
+    transform var(--studio-duration-fast) var(--studio-ease-standard);
+}
+
+.studio-motion-lift:hover {
+  transform: var(--studio-transform-lift);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+
+  .studio-motion-reveal,
+  .studio-motion-scale,
+  .studio-motion-lift,
+  .studio-motion-lift:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,59 @@
+.root {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--studio-space-6);
+}
+
+.sizeReadable {
+  max-width: var(--studio-container-readable);
+}
+
+.sizeXs {
+  max-width: var(--studio-container-xs);
+}
+
+.sizeSm {
+  max-width: var(--studio-container-sm);
+}
+
+.sizeMd {
+  max-width: var(--studio-container-md);
+}
+
+.sizeLg {
+  max-width: var(--studio-container-lg);
+}
+
+.sizeXl {
+  max-width: var(--studio-container-xl);
+}
+
+.sizePage {
+  max-width: var(--studio-container-page);
+}
+
+.gutterCompact {
+  padding-inline: var(--studio-space-4);
+}
+
+.gutterStandard {
+  padding-inline: var(--studio-space-6);
+}
+
+.gutterEditorial {
+  padding-inline: var(--studio-space-8);
+}
+
+@media (min-width: 48rem) {
+  .gutterCompact {
+    padding-inline: var(--studio-space-6);
+  }
+
+  .gutterStandard {
+    padding-inline: var(--studio-space-8);
+  }
+
+  .gutterEditorial {
+    padding-inline: var(--studio-space-12);
+  }
+}

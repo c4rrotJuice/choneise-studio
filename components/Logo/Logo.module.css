@@ -1,0 +1,31 @@
+.root {
+  color: var(--studio-color-text);
+  display: inline-flex;
+  font-family: var(--studio-font-sans);
+  font-size: var(--studio-text-xl);
+  font-weight: var(--studio-font-weight-regular);
+  letter-spacing: var(--studio-tracking-tight);
+  line-height: var(--studio-leading-heading);
+  text-decoration: none;
+}
+
+.root:focus-visible {
+  outline: var(--studio-outline-width) solid var(--studio-color-focus);
+  outline-offset: var(--studio-outline-offset);
+}
+
+.toneDefault {
+  color: var(--studio-color-text);
+}
+
+.toneMuted {
+  color: var(--studio-color-text-muted);
+}
+
+.sizeCompact {
+  font-size: var(--studio-text-lg);
+}
+
+.sizeStandard {
+  font-size: var(--studio-text-xl);
+}

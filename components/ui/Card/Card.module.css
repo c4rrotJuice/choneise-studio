@@ -1,0 +1,31 @@
+.root {
+  background: var(--studio-color-bg-panel);
+  border: var(--studio-border-width-regular) solid var(--studio-color-border);
+  border-radius: var(--studio-radius-4);
+  color: var(--studio-color-text);
+}
+
+.paddingCompact {
+  padding: var(--studio-space-4);
+}
+
+.paddingStandard {
+  padding: var(--studio-space-6);
+}
+
+.paddingEditorial {
+  padding: var(--studio-space-8);
+}
+
+.toneDefault {
+  background: var(--studio-color-bg-panel);
+}
+
+.toneElevated {
+  background: var(--studio-color-bg-elevated);
+  border-color: var(--studio-color-border-strong);
+}
+
+.toneSubtle {
+  background: var(--studio-color-bg-subtle);
+}

@@ -1,0 +1,44 @@
+.root {
+  color: var(--studio-color-text-muted);
+  font-family: var(--studio-font-sans);
+  font-weight: var(--studio-font-weight-regular);
+  line-height: var(--studio-leading-body);
+  margin-block: var(--studio-space-0);
+  max-inline-size: var(--studio-container-readable);
+}
+
+.sizeSmall {
+  font-size: var(--studio-text-sm);
+}
+
+.sizeMedium {
+  font-size: var(--studio-text-md);
+}
+
+.sizeLarge {
+  font-size: var(--studio-text-lg);
+}
+
+.toneDefault {
+  color: var(--studio-color-text-muted);
+}
+
+.toneStrong {
+  color: var(--studio-color-text);
+}
+
+.toneSubtle {
+  color: var(--studio-color-text-subtle);
+}
+
+.measureReadable {
+  max-inline-size: var(--studio-container-readable);
+}
+
+.measureCompact {
+  max-inline-size: var(--studio-container-xs);
+}
+
+.measureFull {
+  max-inline-size: none;
+}
