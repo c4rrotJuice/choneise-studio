@@ -8,3 +8,11 @@ Minimal Next.js App Router scaffold with Tailwind CSS and Supabase client wiring
 npm install
 npm run dev
 ```
+
+## Cloudflare Pages
+
+Use Cloudflare Pages for this static scaffold.
+
+- Build command: `npm run build`
+- Build output directory: `out`
+- Node version: `20` or newer
