@@ -12,9 +12,11 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
+    "gen:types": "supabase gen types typescript --local > supabase/types/database.ts",
     "preview:deploy": "npx wrangler pages deploy out"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "next": "^15.5.19",
     "react": "^19.2.7",

@@ -22,6 +22,7 @@ Usage:
   db-agent.sh new [repo-root] <name>
   db-agent.sh push-dry-run [repo-root]
   db-agent.sh push [repo-root]
+  db-agent.sh seed [repo-root]
 
 Rules:
   - Inspect schema before code changes.
@@ -76,8 +77,8 @@ validate() {
 }
 
 require_supabase() {
-  if ! command -v npx >/dev/null 2>&1; then
-    echo "npx is required for Supabase migration commands" >&2
+  if ! command -v supabase >/dev/null 2>&1; then
+    echo "supabase CLI is required for migration commands" >&2
     return 1
   fi
 }
@@ -99,17 +100,21 @@ case "$ACTION" in
       exit 1
     fi
     require_supabase
-    run_logged npx supabase migration new "$NAME"
+    run_logged supabase migration new "$NAME"
     ;;
   push-dry-run)
     require_supabase
     validate
-    run_logged npx supabase db push --dry-run
+    run_logged supabase db push --linked --dry-run
     ;;
   push)
     require_supabase
     validate
-    run_logged npx supabase db push
+    run_logged supabase db push --linked
+    ;;
+  seed)
+    require_supabase
+    run_logged supabase db push --linked --include-seed
     ;;
   help|-h|--help)
     print_usage
