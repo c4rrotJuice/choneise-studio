@@ -25,7 +25,7 @@ export function SiteNav({ active }: SiteNavProps) {
             </a>
           ))}
         </div>
-        <Button as="a" href="/projects" className={styles.navCta}>
+        <Button as="a" href="/login" className={styles.navCta}>
           Enter Studio
         </Button>
       </nav>
@@ -69,3 +69,4 @@ export function SiteFooter() {
     </footer>
   )
 }
+
