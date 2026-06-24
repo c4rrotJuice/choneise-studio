@@ -1,6 +1,11 @@
 {
-  "generatedAt": null,
-  "gitHead": null,
-  "gitDirty": null,
-  "generator": "bootstrap-placeholder"
+  "generatedAt": "2026-06-24T02:22:03Z",
+  "gitHead": "f07f70f2bf4ca0a8236b958747ade786f248b1a2",
+  "gitDirty": "false",
+  "generator": "skim-cache.sh",
+  "files": [
+    ".ai/state.md",
+    ".ai/file-map.md",
+    ".ai/commands.md"
+  ]
 }
