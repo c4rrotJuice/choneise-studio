@@ -1,25 +1,16 @@
 import type { Metadata } from "next"
+import { ConsoleShell } from "@/components/console/shell"
 
 export const metadata: Metadata = {
   title: "Console",
   robots: { index: false, follow: false },
 }
 
-export default async function ConsoleLayout({
+export default function ConsoleLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--studio-color-bg)",
-        color: "var(--studio-color-text)",
-        fontFamily: "var(--studio-font-sans)",
-      }}
-    >
-      {children}
-    </div>
-  )
+  return <ConsoleShell>{children}</ConsoleShell>
 }
+
