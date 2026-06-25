@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser"
+import { createAuthClient } from "@/lib/auth/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Database } from "@/supabase/types/database"
 import type { ContentResult } from "@/lib/content/projects"
@@ -17,6 +17,7 @@ type AssetInsert = Database["public"]["Tables"]["assets"]["Insert"]
 export async function listAssets(
   projectId?: string,
 ): Promise<ContentResult<AssetRow[]>> {
+  const supabase = createAuthClient()
   let query = supabase.from("assets").select("*")
 
   if (projectId) {

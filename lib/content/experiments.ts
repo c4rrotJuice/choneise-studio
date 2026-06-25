@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser"
+import { createAuthClient } from "@/lib/auth/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Database } from "@/supabase/types/database"
 import type { ContentResult } from "@/lib/content/projects"
@@ -17,6 +17,7 @@ type ExperimentInsert = Database["public"]["Tables"]["experiments"]["Insert"]
 export async function listExperiments(
   projectId: string,
 ): Promise<ContentResult<ExperimentRow[]>> {
+  const supabase = createAuthClient()
   const { data, error } = await supabase
     .from("experiments")
     .select("*")

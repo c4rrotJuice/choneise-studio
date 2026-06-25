@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
-import { supabase } from "@/lib/supabase/browser"
+import { createAuthClient } from "@/lib/auth/client"
 import { createAsset } from "@/lib/api/assets"
 import styles from "./assets.module.css"
 
@@ -88,10 +88,12 @@ export function Uploader({ onUploaded }: UploaderProps) {
 
       const assetType = getAssetType(file.type)
 
+      const authClient = createAuthClient()
+
       // Generate a clean storage path: userId/timestamp-filename
       let userId = "anonymous"
       try {
-        const { data } = await supabase.auth.getUser()
+        const { data } = await authClient.auth.getUser()
         if (data.user) {
           userId = data.user.id
         }
@@ -106,7 +108,7 @@ export function Uploader({ onUploaded }: UploaderProps) {
       setUpload({ phase: "uploading", file: file.name, progress: 0 })
 
       // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await authClient.storage
         .from(BUCKET)
         .upload(storagePath, file, {
           cacheControl: "3600",
@@ -124,7 +126,7 @@ export function Uploader({ onUploaded }: UploaderProps) {
       setUpload({ phase: "uploading", file: file.name, progress: 80 })
 
       // Get the public URL
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = authClient.storage
         .from(BUCKET)
         .getPublicUrl(storagePath)
 

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser"
+import { createAuthClient } from "@/lib/auth/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Database } from "@/supabase/types/database"
 
@@ -17,6 +17,7 @@ export type ContentResult<T> = { data: T | null; error: string | null }
 // ---------------------------------------------------------------------------
 
 export async function getProjects(): Promise<ContentResult<ProjectRow[]>> {
+  const supabase = createAuthClient()
   const { data, error } = await supabase
     .from("projects")
     .select("*")
@@ -30,6 +31,7 @@ export async function getProjects(): Promise<ContentResult<ProjectRow[]>> {
 export async function getProject(
   slug: string,
 ): Promise<ContentResult<ProjectRow>> {
+  const supabase = createAuthClient()
   const { data, error } = await supabase
     .from("projects")
     .select("*")

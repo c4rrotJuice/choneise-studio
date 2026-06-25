@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser"
+import { createAuthClient } from "@/lib/auth/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Database } from "@/supabase/types/database"
 import type { ContentResult } from "@/lib/content/projects"
@@ -17,6 +17,7 @@ type UpdateInsert = Database["public"]["Tables"]["updates"]["Insert"]
 export async function listUpdates(
   projectId: string,
 ): Promise<ContentResult<UpdateRow[]>> {
+  const supabase = createAuthClient()
   const { data, error } = await supabase
     .from("updates")
     .select("*")

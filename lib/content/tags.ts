@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser"
+import { createAuthClient } from "@/lib/auth/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Database } from "@/supabase/types/database"
 import type { ContentResult } from "@/lib/content/projects"
@@ -14,6 +14,7 @@ type TagRow = Database["public"]["Tables"]["tags"]["Row"]
 // ---------------------------------------------------------------------------
 
 export async function listTags(): Promise<ContentResult<TagRow[]>> {
+  const supabase = createAuthClient()
   const { data, error } = await supabase
     .from("tags")
     .select("*")
