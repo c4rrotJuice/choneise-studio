@@ -16,7 +16,7 @@ const assetTypes = ["image", "document"] as const
 const createAssetSchema = z.object({
   url: z.string().min(1, "URL is required").url("Must be a valid URL"),
   type: z.enum(assetTypes, {
-    errorMap: () => ({ message: 'Type must be "image" or "document"' }),
+    message: 'Type must be "image" or "document"',
   }),
   project_id: z.string().uuid("Must be a valid project ID").optional().nullable(),
   meta: z.record(z.string(), z.unknown()).optional().nullable(),
