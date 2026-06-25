@@ -11,7 +11,15 @@ interface ApiEnv extends FunctionsEnv {
 
 // ── Zod schemas ────────────────────────────────────────────────────────────
 
-const projectStatuses = ["draft", "published", "archived"] as const
+const projectStatuses = [
+  "draft",
+  "published",
+  "archived",
+  "Live",
+  "Building",
+  "Experiment",
+  "Dormant",
+] as const
 
 const createProjectSchema = z.object({
   title: z
@@ -38,6 +46,8 @@ const createProjectSchema = z.object({
     .optional()
     .or(z.literal("")),
   status: z.enum(projectStatuses).optional().default("draft"),
+  kind: z.string().max(100).optional().or(z.literal("")),
+  version: z.string().max(50).optional().or(z.literal("")),
 })
 
 const updateProjectSchema = z.object({
@@ -68,6 +78,8 @@ const updateProjectSchema = z.object({
     .optional()
     .or(z.literal("")),
   status: z.enum(projectStatuses).optional(),
+  kind: z.string().max(100).optional().or(z.literal("")),
+  version: z.string().max(50).optional().or(z.literal("")),
 })
 
 // Build-time guard: ensures Zod schema keys are a valid subset of DB columns.
@@ -176,7 +188,8 @@ export async function onRequestPost(
     return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
   }
 
-  const { title, slug, summary, body: projectBody, description, status } = parsed.data
+  const { title, slug, summary, body: projectBody, description, status, kind, version } =
+    parsed.data
   const admin = createAdminClient(env)
 
   const { data, error } = await admin
@@ -188,6 +201,8 @@ export async function onRequestPost(
       body: projectBody || null,
       description: description || null,
       status,
+      kind: kind || null,
+      version: version || null,
     })
     .select("*")
     .single()
@@ -234,6 +249,8 @@ export async function onRequestPut(
   if (fields.body !== undefined) payload.body = fields.body === "" ? null : fields.body
   if (fields.description !== undefined) payload.description = fields.description === "" ? null : fields.description
   if (fields.status !== undefined) payload.status = fields.status
+  if (fields.kind !== undefined) payload.kind = fields.kind === "" ? null : fields.kind
+  if (fields.version !== undefined) payload.version = fields.version === "" ? null : fields.version
 
   if (Object.keys(payload).length === 0) {
     return json({ ok: false, errors: { root: ["No changes to save"] } }, 422)

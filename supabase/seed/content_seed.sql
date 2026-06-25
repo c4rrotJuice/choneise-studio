@@ -12,33 +12,75 @@
 BEGIN;
 
 -- ============================================================================
--- 1. TAGS (3)
+-- 1. TAGS (5)
 -- ============================================================================
 INSERT INTO tags (id, name)
 VALUES
     ('a0000000-0000-0000-0000-000000000001', 'experimental'),
     ('a0000000-0000-0000-0000-000000000002', 'product'),
-    ('a0000000-0000-0000-0000-000000000003', 'internal')
+    ('a0000000-0000-0000-0000-000000000003', 'internal'),
+    ('a0000000-0000-0000-0000-000000000004', 'tool'),
+    ('a0000000-0000-0000-0000-000000000005', 'public')
 ON CONFLICT (name) DO NOTHING;
 
 -- ============================================================================
--- 2. PROJECTS (2)
+-- 2. PROJECTS (6)
 -- ============================================================================
-INSERT INTO projects (id, slug, title, description, status)
+INSERT INTO projects (id, slug, title, description, status, kind, version)
 VALUES
     (
         'b0000000-0000-0000-0000-000000000001',
         'choneise-studio',
         'Choneise Studio',
         'The internal studio runtime — a calm, intentional workspace for building, tracking, and publishing digital products. Serves as both the operational backbone and the public surface of the studio.',
-        'active'
+        'published',
+        'Platform',
+        'v1.0.0'
     ),
     (
         'b0000000-0000-0000-0000-000000000002',
         'quiet-tool',
         'Quiet Tool',
         'A focused, minimal writing environment for long-form thinking. Strips away distraction and keeps the cursor moving. Currently in quiet alpha with a small circle of early users.',
-        'draft'
+        'draft',
+        'Tool',
+        'v0.1.0'
+    ),
+    (
+        'b0000000-0000-0000-0000-000000000003',
+        'grade-converter',
+        'Grade Converter',
+        'Convert grades across different systems. Simple, accurate, useful.',
+        'Live',
+        'Tool',
+        'v1.0.2'
+    ),
+    (
+        'b0000000-0000-0000-0000-000000000004',
+        'fee-calculator',
+        'Mobile Money Fee Calculator',
+        'Estimate mobile money transfer costs before sending everyday payments.',
+        'Building',
+        'Tool',
+        'v0.4.0'
+    ),
+    (
+        'b0000000-0000-0000-0000-000000000005',
+        'multilingual-explorer',
+        'Multilingual Explorer',
+        'Explore meanings across languages, contexts, and translation paths.',
+        'Experiment',
+        'Experiment',
+        'v0.3.1'
+    ),
+    (
+        'b0000000-0000-0000-0000-000000000006',
+        'quiet-journal',
+        'Quiet Journal',
+        'A minimal writing space for quiet notes, drafts, and public thinking.',
+        'Dormant',
+        'Experiment',
+        'v0.1.0'
     )
 ON CONFLICT (slug) DO NOTHING;
 
@@ -47,12 +89,25 @@ ON CONFLICT (slug) DO NOTHING;
 -- ============================================================================
 INSERT INTO project_tags (project_id, tag_id)
 VALUES
-    -- Choneise Studio is experimental + internal
+    -- Choneise Studio: experimental + internal
     ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001'),
     ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000003'),
-    -- Quiet Tool is experimental + product
+    -- Quiet Tool: experimental + product
     ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001'),
-    ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002')
+    ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002'),
+    -- Grade Converter: tool + public + product
+    ('b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004'),
+    ('b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000005'),
+    ('b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000002'),
+    -- Fee Calculator: tool + public + product
+    ('b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000004'),
+    ('b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000005'),
+    ('b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000002'),
+    -- Multilingual Explorer: experimental + public
+    ('b0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001'),
+    ('b0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000005'),
+    -- Quiet Journal: experimental
+    ('b0000000-0000-0000-0000-000000000006', 'a0000000-0000-0000-0000-000000000001')
 ON CONFLICT (project_id, tag_id) DO NOTHING;
 
 -- ============================================================================

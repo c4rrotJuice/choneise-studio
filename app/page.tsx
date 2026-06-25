@@ -5,10 +5,14 @@ import { ProjectCard } from "@/components/project/project-card"
 import { SiteFooter, SiteNav } from "@/components/site/chrome"
 import { Button } from "@/components/ui/Button"
 import { LogoMarquee } from "@/components/ui/logo-marquee"
-import { currentBuilds, featuredProjects, philosophyPrinciples } from "./site-data"
+import { getFeaturedProjects } from "@/lib/content/projects-server"
+import { currentBuilds, featuredProjects as fallbackProjects, philosophyPrinciples } from "./site-data"
 import styles from "./page.module.css"
 
-export default function Home() {
+export default async function Home() {
+  const dbProjects = await getFeaturedProjects()
+  const projects = dbProjects.length > 0 ? dbProjects : fallbackProjects
+
   return (
     <main className={styles.page}>
       <div className={styles.heroShell}>
@@ -79,7 +83,7 @@ export default function Home() {
             </a>
           </div>
           <div className={styles.projectGrid}>
-            {featuredProjects.map((project) => (
+            {projects.map((project) => (
               <ProjectCard key={project.title} {...project} />
             ))}
           </div>

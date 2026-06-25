@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import { Container } from "@/components/layout/Container"
 import { ProjectCard } from "@/components/project/project-card"
 import { SiteFooter, SiteNav } from "@/components/site/chrome"
-import { currentBuilds, featuredProjects } from "../site-data"
+import { getFeaturedProjects } from "@/lib/content/projects-server"
+import { currentBuilds, featuredProjects as fallbackProjects } from "../site-data"
 import { siteConfig } from "../metadata"
 import styles from "../content-pages.module.css"
 
@@ -20,7 +21,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const dbProjects = await getFeaturedProjects()
+  const projects = dbProjects.length > 0 ? dbProjects : fallbackProjects
+
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
@@ -46,7 +50,7 @@ export default function ProjectsPage() {
             </h2>
           </div>
           <div className={styles.projectGrid}>
-            {featuredProjects.map((project) => (
+            {projects.map((project) => (
               <div id={project.href?.split("#")[1]} key={project.title}>
                 <ProjectCard {...project} href={project.href ?? "/projects"} />
               </div>
