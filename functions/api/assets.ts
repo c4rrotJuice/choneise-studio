@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { createFunctionsClient, type FunctionsEnv } from "../_lib/supabase"
 import { createAdminClient } from "../_lib/admin"
-import type { TablesInsert } from "../../supabase/types/database"
+import type { Json, TablesInsert } from "../../supabase/types/database"
 
 // ── Env ─────────────────────────────────────────────────────────────────────
 
@@ -137,7 +137,7 @@ export async function onRequestPost(
       url,
       type,
       project_id: project_id ?? null,
-      meta: meta ?? null,
+      meta: (meta ?? null) as Json,
     })
     .select("*")
     .single()
