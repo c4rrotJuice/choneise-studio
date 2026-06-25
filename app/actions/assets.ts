@@ -39,7 +39,7 @@ export async function createAssetRecord(payload: {
   url: string
   type: "image" | "document"
   project_id?: string | null
-  meta?: Record<string, unknown> | null
+  meta?: Json | null
 }): Promise<ActionResult<AssetRow>> {
   try {
     const admin = createAdminClient()
@@ -50,7 +50,7 @@ export async function createAssetRecord(payload: {
         url: payload.url,
         type: payload.type,
         project_id: payload.project_id ?? null,
-        meta: payload.meta ? (payload.meta as Json) : null,
+        meta: (payload.meta ?? null) as unknown as Json | null,
       })
       .select("*")
       .single()
