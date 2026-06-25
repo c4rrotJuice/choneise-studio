@@ -6,13 +6,15 @@ ALTER TABLE projects
   ADD COLUMN summary text,
   ADD COLUMN body    text;
 
--- 2. Migrate existing status values: 'active' → 'published'
-UPDATE projects SET status = 'published' WHERE status = 'active';
-
--- 3. Replace the status CHECK constraint
+-- 2. Drop the old CHECK constraint first so we can migrate status values
 ALTER TABLE projects
   DROP CONSTRAINT IF EXISTS projects_status_check;
 
+-- 3. Migrate existing status values: 'active' → 'published'
+UPDATE projects SET status = 'published' WHERE status = 'active';
+
+-- 4. Add the new CHECK constraint
 ALTER TABLE projects
   ADD CONSTRAINT projects_status_check
   CHECK (status IN ('draft', 'published', 'archived'));
+
