@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { createFunctionsClient, type FunctionsEnv } from "../_lib/supabase"
 import { createAdminClient } from "../_lib/admin"
+import type { TablesInsert, TablesUpdate } from "../../supabase/types/database"
 
 // ── Env ─────────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,11 @@ const createProjectSchema = z.object({
     .optional()
     .or(z.literal("")),
   body: z.string().optional().or(z.literal("")),
+  description: z
+    .string()
+    .max(1000, "Description must be under 1000 characters")
+    .optional()
+    .or(z.literal("")),
   status: z.enum(projectStatuses).optional().default("draft"),
 })
 
@@ -56,8 +62,19 @@ const updateProjectSchema = z.object({
     .optional()
     .or(z.literal("")),
   body: z.string().optional().or(z.literal("")),
+  description: z
+    .string()
+    .max(1000, "Description must be under 1000 characters")
+    .optional()
+    .or(z.literal("")),
   status: z.enum(projectStatuses).optional(),
 })
+
+// Build-time guard: ensures Zod schema keys are a valid subset of DB columns.
+// If a migration renames or removes a column, this line fails at build time.
+type _ZodInsertKeysValid = keyof z.infer<typeof createProjectSchema> extends keyof TablesInsert<"projects">
+  ? true
+  : ["Zod createProjectSchema has keys not in DB — check for a renamed column:", Exclude<keyof z.infer<typeof createProjectSchema>, keyof TablesInsert<"projects">>]
 
 const deleteProjectSchema = z.object({
   id: z.string().min(1, "Project ID is required"),
@@ -159,7 +176,7 @@ export async function onRequestPost(
     return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
   }
 
-  const { title, slug, summary, body: projectBody, status } = parsed.data
+  const { title, slug, summary, body: projectBody, description, status } = parsed.data
   const admin = createAdminClient(env)
 
   const { data, error } = await admin
@@ -169,8 +186,9 @@ export async function onRequestPost(
       slug,
       summary: summary || null,
       body: projectBody || null,
+      description: description || null,
       status,
-    } as never)
+    })
     .select("*")
     .single()
 
@@ -209,11 +227,12 @@ export async function onRequestPut(
 
   const { id, ...fields } = parsed.data
 
-  const payload: Record<string, string | null> = {}
+  const payload: TablesUpdate<"projects"> = {}
   if (fields.title !== undefined) payload.title = fields.title
   if (fields.slug !== undefined) payload.slug = fields.slug
   if (fields.summary !== undefined) payload.summary = fields.summary === "" ? null : fields.summary
   if (fields.body !== undefined) payload.body = fields.body === "" ? null : fields.body
+  if (fields.description !== undefined) payload.description = fields.description === "" ? null : fields.description
   if (fields.status !== undefined) payload.status = fields.status
 
   if (Object.keys(payload).length === 0) {
@@ -224,7 +243,7 @@ export async function onRequestPut(
 
   const { data, error } = await admin
     .from("projects")
-    .update(payload as never)
+    .update(payload)
     .eq("id", id)
     .select("*")
     .single()

@@ -6,6 +6,7 @@ export type ProjectRow = {
   title: string
   summary: string | null
   body: string | null
+  description: string | null
   status: string
   created_at: string
   updated_at: string
@@ -64,6 +65,7 @@ export async function createProject(
     slug: string
     summary?: string
     body?: string
+    description?: string
     status?: string
   },
 ): Promise<ApiResult<ProjectRow>> {
@@ -80,6 +82,7 @@ export async function updateProject(
     slug?: string
     summary?: string
     body?: string
+    description?: string
     status?: string
   },
 ): Promise<ApiResult<ProjectRow>> {
