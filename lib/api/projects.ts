@@ -8,6 +8,8 @@ export type ProjectRow = {
   body: string | null
   description: string | null
   status: string
+  kind: string | null
+  version: string | null
   created_at: string
   updated_at: string
 }
@@ -67,6 +69,8 @@ export async function createProject(
     body?: string
     description?: string
     status?: string
+    kind?: string
+    version?: string
   },
 ): Promise<ApiResult<ProjectRow>> {
   return apiFetch<ProjectRow>({
@@ -84,6 +88,8 @@ export async function updateProject(
     body?: string
     description?: string
     status?: string
+    kind?: string
+    version?: string
   },
 ): Promise<ApiResult<ProjectRow>> {
   return apiFetch<ProjectRow>({

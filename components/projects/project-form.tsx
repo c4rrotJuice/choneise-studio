@@ -40,6 +40,8 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   const [summary, setSummary] = useState(project?.summary ?? "")
   const [body, setBody] = useState(project?.body ?? "")
   const [status, setStatus] = useState(project?.status ?? "draft")
+  const [kind, setKind] = useState(project?.kind ?? "")
+  const [version, setVersion] = useState(project?.version ?? "")
   const [slugManuallySet, setSlugManuallySet] = useState(Boolean(project))
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
@@ -81,6 +83,8 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
         summary: summary || undefined,
         body: body || undefined,
         status,
+        kind: kind || undefined,
+        version: version || undefined,
       }
 
       let result
@@ -101,7 +105,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
         setFieldErrors((result as ApiError).errors ?? {})
       }
     },
-    [title, slug, summary, body, status, isEditing, project, onSaved],
+    [title, slug, summary, body, status, kind, version, isEditing, project, onSaved],
   )
 
   return (
@@ -183,9 +187,47 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
           <option value="draft">Draft</option>
           <option value="published">Published</option>
           <option value="archived">Archived</option>
+          <option value="Live">Live</option>
+          <option value="Building">Building</option>
+          <option value="Experiment">Experiment</option>
+          <option value="Dormant">Dormant</option>
         </select>
         {fieldErrors.status && (
           <span className={styles.fieldError}>{fieldErrors.status[0]}</span>
+        )}
+      </label>
+
+      {/* ── Kind ── */}
+      <label className={styles.field}>
+        <span className={styles.fieldLabel}>Kind</span>
+        <input
+          className={styles.input}
+          type="text"
+          name="kind"
+          value={kind}
+          onChange={(e) => setKind(e.target.value)}
+          placeholder="e.g. Experiment, Tool, Library"
+          maxLength={100}
+        />
+        {fieldErrors.kind && (
+          <span className={styles.fieldError}>{fieldErrors.kind[0]}</span>
+        )}
+      </label>
+
+      {/* ── Version ── */}
+      <label className={styles.field}>
+        <span className={styles.fieldLabel}>Version</span>
+        <input
+          className={styles.input}
+          type="text"
+          name="version"
+          value={version}
+          onChange={(e) => setVersion(e.target.value)}
+          placeholder="e.g. v0.1.0"
+          maxLength={50}
+        />
+        {fieldErrors.version && (
+          <span className={styles.fieldError}>{fieldErrors.version[0]}</span>
         )}
       </label>
 

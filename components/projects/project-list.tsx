@@ -17,12 +17,20 @@ const statusLabel: Record<string, string> = {
   draft: "Draft",
   published: "Published",
   archived: "Archived",
+  Live: "Live",
+  Building: "Building",
+  Experiment: "Experiment",
+  Dormant: "Dormant",
 }
 
-const statusTone: Record<string, "draft" | "live" | "build"> = {
+const statusTone: Record<string, "draft" | "live" | "build" | "experimental"> = {
   draft: "draft",
   published: "live",
   archived: "build",
+  Live: "live",
+  Building: "build",
+  Experiment: "experimental",
+  Dormant: "draft",
 }
 
 export function ProjectList({ projects, onEdit, onDeleted }: ProjectListProps) {

@@ -17,6 +17,20 @@ const statusLabel: Record<string, string> = {
   draft: "Draft",
   published: "Published",
   archived: "Archived",
+  Live: "Live",
+  Building: "Building",
+  Experiment: "Experiment",
+  Dormant: "Dormant",
+}
+
+const statusTone: Record<string, "draft" | "live" | "build" | "experimental"> = {
+  draft: "draft",
+  published: "live",
+  archived: "build",
+  Live: "live",
+  Building: "build",
+  Experiment: "experimental",
+  Dormant: "draft",
 }
 
 // ── Component ───────────────────────────────────────────────────────────────
@@ -157,13 +171,7 @@ function PreviewPanel({ project }: { project?: ProjectRow | null }) {
       <div className={styles.previewContent}>
         <div className={styles.previewHeader}>
           <Status
-            status={
-              project.status === "published"
-                ? "live"
-                : project.status === "archived"
-                  ? "build"
-                  : "draft"
-            }
+            status={statusTone[project.status] ?? "draft"}
             label={statusLabel[project.status] ?? project.status}
           />
         </div>
