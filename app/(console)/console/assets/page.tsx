@@ -1,13 +1,33 @@
-import type { Metadata } from "next"
-import { Button } from "@/components/ui/Button"
+"use client"
+
+import { useCallback, useEffect, useState } from "react"
+import { Uploader } from "@/components/assets/uploader"
+import { AssetGrid } from "@/components/assets/asset-grid"
+import { getAssets, type AssetRow } from "@/lib/api/assets"
 import styles from "@/components/console/console.module.css"
 
-export const metadata: Metadata = {
-  title: "Assets — Studio Console",
-  robots: { index: false, follow: false },
-}
-
 export default function AssetsPage() {
+  const [assets, setAssets] = useState<AssetRow[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const refreshAssets = useCallback(async () => {
+    const data = await getAssets()
+    setAssets(data)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    refreshAssets()
+  }, [refreshAssets])
+
+  const handleUploaded = useCallback(() => {
+    refreshAssets()
+  }, [refreshAssets])
+
+  const handleDeleted = useCallback(() => {
+    refreshAssets()
+  }, [refreshAssets])
+
   return (
     <>
       <header className={styles.pageHeader}>
@@ -17,19 +37,13 @@ export default function AssetsPage() {
         </p>
       </header>
 
-      <div className={styles.emptyState}>
-        <div className={styles.emptyStateIcon} aria-hidden>
-          &#x25C7;
-        </div>
-        <h2 className={styles.emptyStateTitle}>No assets uploaded</h2>
-        <p className={styles.emptyStateCopy}>
-          Assets will appear here once uploaded. The studio supports images,
-          documents, and other media types tied to projects.
-        </p>
-        <Button variant="secondary" size="standard" disabled>
-          Upload Asset
-        </Button>
-      </div>
+      <Uploader onUploaded={handleUploaded} />
+
+      <AssetGrid
+        assets={assets}
+        loading={loading}
+        onDeleted={handleDeleted}
+      />
     </>
   )
 }
