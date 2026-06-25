@@ -1,16 +1,16 @@
 "use client"
 
-import { useActionState, useCallback, useState, useTransition } from "react"
+import { useCallback, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { Status } from "@/components/ui/Status"
-import { deleteProject } from "@/app/actions/projects"
-import type { ProjectRow } from "@/app/actions/projects"
+import { deleteProject, type ProjectRow } from "@/lib/api/projects"
 import styles from "./projects.module.css"
 
 type ProjectListProps = {
   projects: ProjectRow[]
   onEdit: (project: ProjectRow) => void
+  onDeleted: () => void
 }
 
 const statusLabel: Record<string, string> = {
@@ -25,8 +25,22 @@ const statusTone: Record<string, "draft" | "live" | "build"> = {
   archived: "build",
 }
 
-export function ProjectList({ projects, onEdit }: ProjectListProps) {
+export function ProjectList({ projects, onEdit, onDeleted }: ProjectListProps) {
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      setDeletingId(id)
+      const result = await deleteProject(id)
+      setDeletingId(null)
+      setConfirmId(null)
+      if (result.ok) {
+        onDeleted()
+      }
+    },
+    [onDeleted],
+  )
 
   if (projects.length === 0) {
     return (
@@ -78,10 +92,23 @@ export function ProjectList({ projects, onEdit }: ProjectListProps) {
               Edit
             </Button>
             {confirmId === project.id ? (
-              <DeleteConfirm
-                projectId={project.id}
-                onCancel={() => setConfirmId(null)}
-              />
+              <span className={styles.deleteConfirm}>
+                <Button
+                  variant="primary"
+                  size="compact"
+                  disabled={deletingId === project.id}
+                  onClick={() => handleDelete(project.id)}
+                >
+                  {deletingId === project.id ? "Deleting…" : "Confirm"}
+                </Button>
+                <Button
+                  variant="quiet"
+                  size="compact"
+                  onClick={() => setConfirmId(null)}
+                >
+                  Cancel
+                </Button>
+              </span>
             ) : (
               <Button
                 variant="quiet"
@@ -96,40 +123,5 @@ export function ProjectList({ projects, onEdit }: ProjectListProps) {
         </Card>
       ))}
     </div>
-  )
-}
-
-function DeleteConfirm({
-  projectId,
-  onCancel,
-}: {
-  projectId: string
-  onCancel: () => void
-}) {
-  const [isPending, startTransition] = useTransition()
-  const [, action] = useActionState(deleteProject, null)
-
-  const handleDelete = useCallback(() => {
-    const formData = new FormData()
-    formData.set("id", projectId)
-    startTransition(() => {
-      action(formData)
-    })
-  }, [projectId, action])
-
-  return (
-    <span className={styles.deleteConfirm}>
-      <Button
-        variant="primary"
-        size="compact"
-        disabled={isPending}
-        onClick={handleDelete}
-      >
-        {isPending ? "Deleting…" : "Confirm"}
-      </Button>
-      <Button variant="quiet" size="compact" onClick={onCancel}>
-        Cancel
-      </Button>
-    </span>
   )
 }

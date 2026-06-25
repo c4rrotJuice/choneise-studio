@@ -1,6 +1,4 @@
 import type { Metadata } from "next"
-import { requireAuth } from "@/lib/auth/guards"
-import { getProjects } from "@/app/actions/projects"
 import { ProjectEditor } from "@/components/projects/project-editor"
 
 export const metadata: Metadata = {
@@ -8,10 +6,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default async function ProjectsPage() {
-  await requireAuth()
-  const projects = await getProjects()
-
+export default function ProjectsPage() {
   return (
     <>
       <header style={pageHeaderStyle}>
@@ -22,7 +17,7 @@ export default async function ProjectsPage() {
         </p>
       </header>
 
-      <ProjectEditor projects={projects} />
+      <ProjectEditor />
     </>
   )
 }

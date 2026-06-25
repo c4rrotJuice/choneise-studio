@@ -1,0 +1,274 @@
+import { z } from "zod"
+import { createFunctionsClient, type FunctionsEnv } from "../_lib/supabase"
+import { createAdminClient } from "../_lib/admin"
+
+// ── Env ─────────────────────────────────────────────────────────────────────
+
+interface ApiEnv extends FunctionsEnv {
+  SUPABASE_SERVICE_ROLE_KEY: string
+}
+
+// ── Zod schemas ────────────────────────────────────────────────────────────
+
+const projectStatuses = ["draft", "published", "archived"] as const
+
+const createProjectSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title must be under 200 characters"),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .max(200, "Slug must be under 200 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug must be lowercase letters, numbers, and hyphens only",
+    ),
+  summary: z
+    .string()
+    .max(500, "Summary must be under 500 characters")
+    .optional()
+    .or(z.literal("")),
+  body: z.string().optional().or(z.literal("")),
+  status: z.enum(projectStatuses).optional().default("draft"),
+})
+
+const updateProjectSchema = z.object({
+  id: z.string().min(1, "Project ID is required"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title must be under 200 characters")
+    .optional(),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .max(200, "Slug must be under 200 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug must be lowercase letters, numbers, and hyphens only",
+    )
+    .optional(),
+  summary: z
+    .string()
+    .max(500, "Summary must be under 500 characters")
+    .optional()
+    .or(z.literal("")),
+  body: z.string().optional().or(z.literal("")),
+  status: z.enum(projectStatuses).optional(),
+})
+
+const deleteProjectSchema = z.object({
+  id: z.string().min(1, "Project ID is required"),
+})
+
+// ── Response helpers ────────────────────────────────────────────────────────
+
+function json(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  })
+}
+
+function formatZodErrors(error: z.ZodError): Record<string, string[]> {
+  const acc: Record<string, string[]> = {}
+  for (const issue of error.issues) {
+    const key = issue.path.join(".") || "root"
+    if (!acc[key]) acc[key] = []
+    acc[key].push(issue.message)
+  }
+  return acc
+}
+
+// ── Auth guard ──────────────────────────────────────────────────────────────
+
+async function requireAuth(
+  request: Request,
+  env: FunctionsEnv,
+): Promise<Response | null> {
+  const { supabase } = createFunctionsClient(request, env)
+  const { data } = await supabase.auth.getUser()
+  if (!data.user) {
+    return json({ errors: { root: ["Unauthorized"] } }, 401)
+  }
+  return null
+}
+
+// ── Route handlers ──────────────────────────────────────────────────────────
+
+export async function onRequestGet(
+  context: { request: Request; env: ApiEnv },
+): Promise<Response> {
+  const { request, env } = context
+
+  const authError = await requireAuth(request, env)
+  if (authError) return authError
+
+  const admin = createAdminClient(env)
+
+  const url = new URL(request.url)
+  const id = url.searchParams.get("id")
+  if (id) {
+    const { data, error } = await admin
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return json({ errors: { root: ["Project not found"] } }, 404)
+      }
+      return json({ errors: { root: ["Failed to fetch project"] } }, 500)
+    }
+
+    return json({ ok: true, data })
+  }
+
+  const { data, error } = await admin
+    .from("projects")
+    .select("*")
+    .order("updated_at", { ascending: false })
+
+  if (error) {
+    return json({ errors: { root: ["Failed to fetch projects"] } }, 500)
+  }
+
+  return json({ ok: true, data: data ?? [] })
+}
+
+export async function onRequestPost(
+  context: { request: Request; env: ApiEnv },
+): Promise<Response> {
+  const { request, env } = context
+
+  const authError = await requireAuth(request, env)
+  if (authError) return authError
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return json({ errors: { root: ["Invalid JSON body"] } }, 400)
+  }
+
+  const parsed = createProjectSchema.safeParse(body)
+  if (!parsed.success) {
+    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
+  }
+
+  const { title, slug, summary, body: projectBody, status } = parsed.data
+  const admin = createAdminClient(env)
+
+  const { data, error } = await admin
+    .from("projects")
+    .insert({
+      title,
+      slug,
+      summary: summary || null,
+      body: projectBody || null,
+      status,
+    } as never)
+    .select("*")
+    .single()
+
+  if (error) {
+    if (error.code === "23505") {
+      return json(
+        { ok: false, errors: { slug: ["A project with this slug already exists"] } },
+        409,
+      )
+    }
+    return json({ ok: false, errors: { root: ["Failed to create project"] } }, 500)
+  }
+
+  return json({ ok: true, data }, 201)
+}
+
+export async function onRequestPut(
+  context: { request: Request; env: ApiEnv },
+): Promise<Response> {
+  const { request, env } = context
+
+  const authError = await requireAuth(request, env)
+  if (authError) return authError
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return json({ errors: { root: ["Invalid JSON body"] } }, 400)
+  }
+
+  const parsed = updateProjectSchema.safeParse(body)
+  if (!parsed.success) {
+    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
+  }
+
+  const { id, ...fields } = parsed.data
+
+  const payload: Record<string, string | null> = {}
+  if (fields.title !== undefined) payload.title = fields.title
+  if (fields.slug !== undefined) payload.slug = fields.slug
+  if (fields.summary !== undefined) payload.summary = fields.summary === "" ? null : fields.summary
+  if (fields.body !== undefined) payload.body = fields.body === "" ? null : fields.body
+  if (fields.status !== undefined) payload.status = fields.status
+
+  if (Object.keys(payload).length === 0) {
+    return json({ ok: false, errors: { root: ["No changes to save"] } }, 422)
+  }
+
+  const admin = createAdminClient(env)
+
+  const { data, error } = await admin
+    .from("projects")
+    .update(payload as never)
+    .eq("id", id)
+    .select("*")
+    .single()
+
+  if (error) {
+    if (error.code === "23505") {
+      return json(
+        { ok: false, errors: { slug: ["A project with this slug already exists"] } },
+        409,
+      )
+    }
+    return json({ ok: false, errors: { root: ["Failed to update project"] } }, 500)
+  }
+
+  return json({ ok: true, data })
+}
+
+export async function onRequestDelete(
+  context: { request: Request; env: ApiEnv },
+): Promise<Response> {
+  const { request, env } = context
+
+  const authError = await requireAuth(request, env)
+  if (authError) return authError
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return json({ errors: { root: ["Invalid JSON body"] } }, 400)
+  }
+
+  const parsed = deleteProjectSchema.safeParse(body)
+  if (!parsed.success) {
+    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
+  }
+
+  const admin = createAdminClient(env)
+
+  const { error } = await admin.from("projects").delete().eq("id", parsed.data.id)
+
+  if (error) {
+    return json({ ok: false, errors: { root: ["Failed to delete project"] } }, 500)
+  }
+
+  return json({ ok: true, data: undefined })
+}

@@ -1,15 +1,13 @@
 "use client"
 
 import {
-  useActionState,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from "react"
 import { Button } from "@/components/ui/Button"
-import { createProject, updateProject } from "@/app/actions/projects"
-import type { ProjectRow } from "@/app/actions/projects"
+import { createProject, updateProject, type ProjectRow, type ApiError } from "@/lib/api/projects"
 import styles from "./projects.module.css"
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -32,24 +30,10 @@ function autoSlug(title: string): string {
     .replace(/-+/g, "-")
 }
 
-// ── Wrapper action that dispatches to create or update ─────────────────────
-
-async function formAction(
-  _prev: Awaited<ReturnType<typeof createProject>> | null,
-  formData: FormData,
-) {
-  const id = formData.get("id")
-  if (id && typeof id === "string") {
-    return updateProject(_prev, formData)
-  }
-  return createProject(_prev, formData)
-}
-
 // ── Component ───────────────────────────────────────────────────────────────
 
 export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   const isEditing = Boolean(project)
-  const [state, dispatch] = useActionState(formAction, null)
 
   const [title, setTitle] = useState(project?.title ?? "")
   const [slug, setSlug] = useState(project?.slug ?? "")
@@ -57,6 +41,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   const [body, setBody] = useState(project?.body ?? "")
   const [status, setStatus] = useState(project?.status ?? "draft")
   const [slugManuallySet, setSlugManuallySet] = useState(Boolean(project))
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle")
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -77,19 +62,6 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
     setSlug(value)
   }, [])
 
-  // Handle successful save
-  useEffect(() => {
-    if (state?.ok && "data" in state && state.data) {
-      setSaveState("saved")
-      if (onSaved && state.data) onSaved(state.data)
-      const timer = setTimeout(() => setSaveState("idle"), 2000)
-      return () => clearTimeout(timer)
-    }
-    if (state && !state.ok) {
-      setSaveState("error")
-    }
-  }, [state, onSaved])
-
   // Cleanup autosave timer
   useEffect(() => {
     return () => {
@@ -98,21 +70,42 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   }, [])
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       setSaveState("saving")
-      const formData = new FormData(e.currentTarget)
-      dispatch(formData)
-    },
-    [dispatch],
-  )
+      setFieldErrors({})
 
-  const fieldErrors: FieldErrors = state && !state.ok ? (state as { errors: FieldErrors }).errors : {}
+      const payload = {
+        title,
+        slug,
+        summary: summary || undefined,
+        body: body || undefined,
+        status,
+      }
+
+      let result
+      if (isEditing && project) {
+        result = await updateProject({ id: project.id, ...payload })
+      } else {
+        result = await createProject(payload)
+      }
+
+      if (result.ok) {
+        setSaveState("saved")
+        if (onSaved && result.data) onSaved(result.data)
+        // Reset saved indicator after a delay
+        const timer = setTimeout(() => setSaveState("idle"), 2000)
+        return () => clearTimeout(timer)
+      } else {
+        setSaveState("error")
+        setFieldErrors((result as ApiError).errors ?? {})
+      }
+    },
+    [title, slug, summary, body, status, isEditing, project, onSaved],
+  )
 
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate>
-      {isEditing && <input type="hidden" name="id" value={project!.id} />}
-
       {/* ── Title ── */}
       <label className={styles.field}>
         <span className={styles.fieldLabel}>Title</span>

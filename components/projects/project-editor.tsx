@@ -1,17 +1,15 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { Status } from "@/components/ui/Status"
 import { ProjectList } from "./project-list"
 import { ProjectForm } from "./project-form"
-import type { ProjectRow } from "@/app/actions/projects"
+import { getProjects, type ProjectRow } from "@/lib/api/projects"
 import styles from "./projects.module.css"
 
-type ProjectEditorProps = {
-  projects: ProjectRow[]
-}
+// ── Types ───────────────────────────────────────────────────────────────────
 
 type Panel = "list" | "form"
 
@@ -21,9 +19,24 @@ const statusLabel: Record<string, string> = {
   archived: "Archived",
 }
 
-export function ProjectEditor({ projects }: ProjectEditorProps) {
+// ── Component ───────────────────────────────────────────────────────────────
+
+export function ProjectEditor() {
+  const [projects, setProjects] = useState<ProjectRow[]>([])
+  const [loading, setLoading] = useState(true)
   const [panel, setPanel] = useState<Panel>("list")
   const [editingProject, setEditingProject] = useState<ProjectRow | null>(null)
+
+  // Fetch projects on mount and after mutations
+  const refreshProjects = useCallback(async () => {
+    const data = await getProjects()
+    setProjects(data)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    refreshProjects()
+  }, [refreshProjects])
 
   const handleCreate = useCallback(() => {
     setEditingProject(null)
@@ -37,17 +50,34 @@ export function ProjectEditor({ projects }: ProjectEditorProps) {
 
   const handleSaved = useCallback(
     (_project: ProjectRow) => {
+      refreshProjects()
       if (!editingProject) {
+        // After creating, stay on form so they can see the result
+        // and optionally switch back to list
         setPanel("list")
       }
     },
-    [editingProject],
+    [editingProject, refreshProjects],
   )
+
+  const handleDeleted = useCallback(() => {
+    refreshProjects()
+  }, [refreshProjects])
 
   const handleBack = useCallback(() => {
     setPanel("list")
     setEditingProject(null)
   }, [])
+
+  if (loading) {
+    return (
+      <div className={styles.editor}>
+        <p style={{ color: "rgba(170,166,154,0.5)", fontSize: "var(--studio-text-sm)" }}>
+          Loading projects…
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.editor}>
@@ -72,7 +102,11 @@ export function ProjectEditor({ projects }: ProjectEditorProps) {
       </header>
 
       {panel === "list" && (
-        <ProjectList projects={projects} onEdit={handleEdit} />
+        <ProjectList
+          projects={projects}
+          onEdit={handleEdit}
+          onDeleted={handleDeleted}
+        />
       )}
 
       {panel === "form" && editingProject && (
