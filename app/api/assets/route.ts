@@ -16,6 +16,10 @@ import {
   deleteAssetRecord,
 } from "@/app/actions/assets"
 
+// ── Route segment config ────────────────────────────────────────────────────
+
+export const dynamic = "force-static"
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function json(data: unknown, status = 200): NextResponse {
@@ -127,4 +131,3 @@ export async function DELETE(request: NextRequest) {
 
   return json({ ok: true, data: undefined })
 }
-
