@@ -26,7 +26,7 @@ ON CONFLICT (name) DO NOTHING;
 -- ============================================================================
 -- 2. PROJECTS (6)
 -- ============================================================================
-INSERT INTO projects (id, slug, title, description, status, kind, version)
+INSERT INTO projects (id, slug, title, description, status, kind, version, hosting_stack, tech_stack, updates_future_plans)
 VALUES
     (
         'b0000000-0000-0000-0000-000000000001',
@@ -35,7 +35,10 @@ VALUES
         'The internal studio runtime — a calm, intentional workspace for building, tracking, and publishing digital products. Serves as both the operational backbone and the public surface of the studio.',
         'published',
         'Platform',
-        'v1.0.0'
+        'v1.0.0',
+        '{"frontend": "Next.js", "backend": "Supabase", "database": "PostgreSQL", "auth": "Supabase Auth", "server": "Cloudflare Pages", "deployed_url": "https://choneise.com"}',
+        '["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "Cloudflare Pages"]',
+        'Expand the studio console with richer editing, add project-level analytics, and refine the public discovery surface.'
     ),
     (
         'b0000000-0000-0000-0000-000000000002',
@@ -44,7 +47,10 @@ VALUES
         'A focused, minimal writing environment for long-form thinking. Strips away distraction and keeps the cursor moving. Currently in quiet alpha with a small circle of early users.',
         'draft',
         'Tool',
-        'v0.1.0'
+        'v0.1.0',
+        '{"frontend": "Next.js", "backend": "Supabase", "database": "PostgreSQL", "auth": "Supabase Auth", "server": "Vercel", "deployed_url": null}',
+        '["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "TipTap"]',
+        'Ship public beta, add markdown export, and explore collaborative editing.'
     ),
     (
         'b0000000-0000-0000-0000-000000000003',
@@ -53,7 +59,10 @@ VALUES
         'Convert grades across different systems. Simple, accurate, useful.',
         'Live',
         'Tool',
-        'v1.0.2'
+        'v1.0.2',
+        '{"frontend": "Next.js", "backend": "Supabase", "database": "PostgreSQL", "auth": null, "server": "Cloudflare Pages", "deployed_url": "https://grade-converter.pages.dev"}',
+        '["Next.js", "React", "TypeScript", "Tailwind CSS", "Cloudflare Pages"]',
+        'Add more grading systems, support GPA calculations, and improve mobile layout.'
     ),
     (
         'b0000000-0000-0000-0000-000000000004',
@@ -62,7 +71,10 @@ VALUES
         'Estimate mobile money transfer costs before sending everyday payments.',
         'Building',
         'Tool',
-        'v0.4.0'
+        'v0.4.0',
+        '{"frontend": "Next.js", "backend": null, "database": null, "auth": null, "server": "Cloudflare Pages", "deployed_url": null}',
+        '["Next.js", "TypeScript", "Tailwind CSS", "Cloudflare Pages"]',
+        'Complete fee formula validation, add provider comparison, and ship v1.0.'
     ),
     (
         'b0000000-0000-0000-0000-000000000005',
@@ -71,7 +83,10 @@ VALUES
         'Explore meanings across languages, contexts, and translation paths.',
         'Experiment',
         'Experiment',
-        'v0.3.1'
+        'v0.3.1',
+        '{"frontend": "Next.js", "backend": "Supabase", "database": "PostgreSQL", "auth": null, "server": "Cloudflare Pages", "deployed_url": "https://multilingual-explorer.pages.dev"}',
+        '["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "Cloudflare Pages"]',
+        'Add more language pairs, improve search performance, and explore adding pronunciation guides.'
     ),
     (
         'b0000000-0000-0000-0000-000000000006',
@@ -80,7 +95,10 @@ VALUES
         'A minimal writing space for quiet notes, drafts, and public thinking.',
         'Dormant',
         'Experiment',
-        'v0.1.0'
+        'v0.1.0',
+        '{"frontend": "Next.js", "backend": "Supabase", "database": "PostgreSQL", "auth": "Supabase Auth", "server": "Vercel", "deployed_url": null}',
+        '["Next.js", "TypeScript", "Tailwind CSS", "Supabase"]',
+        'Revisit after Quiet Tool stabilises. Consider merging ideas or keeping as a separate lightweight journal product.'
     )
 ON CONFLICT (slug) DO NOTHING;
 
@@ -209,7 +227,7 @@ VALUES
         'e0000000-0000-0000-0000-000000000002',
         'b0000000-0000-0000-0000-000000000001',
         'https://github.com/choneise/studio-runtime',
-        'link',
+        'document',
         '{"label": "Studio Runtime repository", "description": "Internal monorepo for the Choneise platform"}'
     ),
     -- Quiet Tool assets

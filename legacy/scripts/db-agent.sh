@@ -41,10 +41,17 @@ run_logged () {
   return "${PIPESTATUS[0]}"
 }
 
+# Resolve supabase binary: prefer local node_modules, fall back to npx
+SUPABASE_BIN="$(cd "$(dirname "$0")" && pwd)/../../node_modules/.bin/supabase"
+
 ensure_tooling () {
-  if ! npx supabase --version >/dev/null 2>&1; then
+  if [ ! -x "$SUPABASE_BIN" ]; then
     echo "📦 Installing Supabase CLI locally..."
     run_logged npm install supabase --save-dev
+    if [ ! -x "$SUPABASE_BIN" ]; then
+      echo "❌ Failed to install Supabase CLI"
+      return 1
+    fi
   fi
 }
 
@@ -72,7 +79,7 @@ show_latest () {
 
 remote_migration_list () {
   echo "🌐 Remote migration history:"
-  run_logged npx supabase migration list
+  run_logged "$SUPABASE_BIN" migration list
 }
 
 remote_has_latest () {
@@ -121,9 +128,9 @@ check_remote_state () {
   show_latest
 
   echo "🌐 Remote migration history:"
-  echo "+ npx supabase migration list" | tee -a "$LOG_FILE"
+  echo "+ $SUPABASE_BIN migration list" | tee -a "$LOG_FILE"
   set +e
-  migration_output="$(npx supabase migration list 2>&1)"
+  migration_output="$("$SUPABASE_BIN" migration list 2>&1)"
   list_result=$?
   set -e
 
@@ -187,7 +194,7 @@ USAGE
 sync_db () {
   echo "🔄 Syncing database state..."
 
-  if run_logged npx supabase db pull; then
+  if run_logged "$SUPABASE_BIN" db pull; then
     echo "✅ Pull successful"
     return 0
   fi
@@ -229,7 +236,7 @@ validate_db () {
 # ─────────────────────────────
 push_db () {
   local -a push_args
-  push_args=(npx supabase db push)
+  push_args=("$SUPABASE_BIN" db push)
 
   if [ "$DRY_RUN" = true ]; then
     push_args+=(--dry-run)
@@ -269,7 +276,7 @@ create_migration () {
   sync_db
 
   echo "📦 Creating migration: $NAME"
-  run_logged npx supabase migration new "$NAME"
+  run_logged "$SUPABASE_BIN" migration new "$NAME"
 
   echo "✏️ Codex must now edit SQL file before push"
 }
@@ -342,7 +349,7 @@ case "$ACTION" in
 
   local-status)
     ensure_tooling
-    run_logged npx supabase status
+    run_logged "$SUPABASE_BIN" status
     ;;
 
   help|-h|--help)
