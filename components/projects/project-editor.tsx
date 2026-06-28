@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useState } from "react"
-import { Button } from "@/components/ui/Button"
-import { Card } from "@/components/ui/Card"
-import { Status } from "@/components/ui/Status"
-import { ProjectList } from "./project-list"
-import { ProjectForm } from "./project-form"
-import { getProjects, type ProjectRow } from "@/lib/api/projects"
-import styles from "./projects.module.css"
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Status } from "@/components/ui/Status";
+import { ProjectList } from "./project-list";
+import { ProjectForm } from "./project-form";
+import { getProjects, type ProjectRow } from "@/lib/api/projects";
+import { getAssets, type AssetRow } from "@/lib/api/assets";
+import styles from "./projects.module.css";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
-type Panel = "list" | "form"
+type Panel = "list" | "form";
 
 const statusLabel: Record<string, string> = {
   draft: "Draft",
@@ -21,76 +22,81 @@ const statusLabel: Record<string, string> = {
   Building: "Building",
   Experiment: "Experiment",
   Dormant: "Dormant",
-}
+};
 
-const statusTone: Record<string, "draft" | "live" | "build" | "experimental"> = {
-  draft: "draft",
-  published: "live",
-  archived: "build",
-  Live: "live",
-  Building: "build",
-  Experiment: "experimental",
-  Dormant: "draft",
-}
+const statusTone: Record<string, "draft" | "live" | "build" | "experimental"> =
+  {
+    draft: "draft",
+    published: "live",
+    archived: "build",
+    Live: "live",
+    Building: "build",
+    Experiment: "experimental",
+    Dormant: "draft",
+  };
 
 // ── Component ───────────────────────────────────────────────────────────────
 
 export function ProjectEditor() {
-  const [projects, setProjects] = useState<ProjectRow[]>([])
-  const [loading, setLoading] = useState(true)
-  const [panel, setPanel] = useState<Panel>("list")
-  const [editingProject, setEditingProject] = useState<ProjectRow | null>(null)
+  const [projects, setProjects] = useState<ProjectRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [panel, setPanel] = useState<Panel>("list");
+  const [editingProject, setEditingProject] = useState<ProjectRow | null>(null);
 
   // Fetch projects on mount and after mutations
   const refreshProjects = useCallback(async () => {
-    const data = await getProjects()
-    setProjects(data)
-    setLoading(false)
-  }, [])
+    const data = await getProjects();
+    setProjects(data);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    refreshProjects()
-  }, [refreshProjects])
+    refreshProjects();
+  }, [refreshProjects]);
 
   const handleCreate = useCallback(() => {
-    setEditingProject(null)
-    setPanel("form")
-  }, [])
+    setEditingProject(null);
+    setPanel("form");
+  }, []);
 
   const handleEdit = useCallback((project: ProjectRow) => {
-    setEditingProject(project)
-    setPanel("form")
-  }, [])
+    setEditingProject(project);
+    setPanel("form");
+  }, []);
 
   const handleSaved = useCallback(
-    (_project: ProjectRow) => {
-      refreshProjects()
+    (savedProject: ProjectRow) => {
+      refreshProjects();
       if (!editingProject) {
-        // After creating, stay on form so they can see the result
-        // and optionally switch back to list
-        setPanel("list")
+        // After creating, stay in the form so they can add screenshots
+        setEditingProject(savedProject);
       }
     },
     [editingProject, refreshProjects],
-  )
+  );
 
   const handleDeleted = useCallback(() => {
-    refreshProjects()
-  }, [refreshProjects])
+    refreshProjects();
+  }, [refreshProjects]);
 
   const handleBack = useCallback(() => {
-    setPanel("list")
-    setEditingProject(null)
-  }, [])
+    setPanel("list");
+    setEditingProject(null);
+  }, []);
 
   if (loading) {
     return (
       <div className={styles.editor}>
-        <p style={{ color: "rgba(170,166,154,0.5)", fontSize: "var(--studio-text-sm)" }}>
+        <p
+          style={{
+            color: "rgba(170,166,154,0.5)",
+            fontSize: "var(--studio-text-sm)",
+          }}
+        >
           Loading projects…
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -149,10 +155,31 @@ export function ProjectEditor() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function PreviewPanel({ project }: { project?: ProjectRow | null }) {
+  const [screenshots, setScreenshots] = useState<AssetRow[]>([]);
+  const [screenshotsLoaded, setScreenshotsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!project?.id) {
+      setScreenshots([]);
+      setScreenshotsLoaded(true);
+      return;
+    }
+    let cancelled = false;
+    getAssets(project.id).then((data) => {
+      if (!cancelled) {
+        setScreenshots(data.filter((a) => a.type === "image"));
+        setScreenshotsLoaded(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [project?.id]);
+
   if (!project) {
     return (
       <Card padding="editorial" tone="subtle" className={styles.previewCard}>
@@ -163,20 +190,39 @@ function PreviewPanel({ project }: { project?: ProjectRow | null }) {
           </p>
         </div>
       </Card>
-    )
+    );
   }
+
+  const techStack = Array.isArray(project.tech_stack) ? project.tech_stack : [];
+  const hostingStack =
+    project.hosting_stack &&
+    typeof project.hosting_stack === "object" &&
+    !Array.isArray(project.hosting_stack)
+      ? Object.entries(project.hosting_stack as Record<string, unknown>)
+      : [];
 
   return (
     <Card padding="editorial" tone="subtle" className={styles.previewCard}>
       <div className={styles.previewContent}>
+        {/* Status + version */}
         <div className={styles.previewHeader}>
           <Status
             status={statusTone[project.status] ?? "draft"}
             label={statusLabel[project.status] ?? project.status}
           />
+          {project.version && (
+            <span className={styles.previewVersion}>{project.version}</span>
+          )}
         </div>
+
+        {/* Title + slug */}
         <h3 className={styles.previewTitle}>{project.title}</h3>
         <p className={styles.previewSlug}>/{project.slug}</p>
+
+        {/* Kind */}
+        {project.kind && <p className={styles.previewKind}>{project.kind}</p>}
+
+        {/* Summary + body */}
         {project.summary && (
           <p className={styles.previewSummary}>{project.summary}</p>
         )}
@@ -184,10 +230,76 @@ function PreviewPanel({ project }: { project?: ProjectRow | null }) {
           <div className={styles.previewBody}>{project.body}</div>
         )}
         {!project.summary && !project.body && (
-          <p className={styles.previewEmpty}>
-            No content to preview yet.
-          </p>
+          <p className={styles.previewEmpty}>No content to preview yet.</p>
         )}
+
+        {/* ── Tech stack ── */}
+        {techStack.length > 0 && (
+          <div className={styles.previewSection}>
+            <h4 className={styles.previewSectionTitle}>Tech Stack</h4>
+            <div className={styles.previewTags}>
+              {techStack.map((item, i) => (
+                <span key={i} className={styles.previewTag}>
+                  {typeof item === "string" ? item : JSON.stringify(item)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Hosting stack ── */}
+        {hostingStack.length > 0 && (
+          <div className={styles.previewSection}>
+            <h4 className={styles.previewSectionTitle}>Hosting</h4>
+            <div className={styles.previewKvList}>
+              {hostingStack.map(([key, value], i) => (
+                <div key={i} className={styles.previewKvRow}>
+                  <span className={styles.previewKvKey}>{key}</span>
+                  <span className={styles.previewKvValue}>{String(value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Updates / future plans ── */}
+        {project.updates_future_plans && (
+          <div className={styles.previewSection}>
+            <h4 className={styles.previewSectionTitle}>
+              Updates &amp; Future Plans
+            </h4>
+            <p className={styles.previewUpdates}>
+              {project.updates_future_plans}
+            </p>
+          </div>
+        )}
+
+        {/* ── Screenshots ── */}
+        {screenshotsLoaded && screenshots.length > 0 && (
+          <div className={styles.previewSection}>
+            <h4 className={styles.previewSectionTitle}>
+              Screenshots ({screenshots.length})
+            </h4>
+            <div className={styles.previewScreenshots}>
+              {screenshots.slice(0, 4).map((shot, i) => (
+                <img
+                  key={shot.id}
+                  src={shot.url}
+                  alt={`Screenshot ${i + 1}`}
+                  className={styles.previewScreenshot}
+                  loading="lazy"
+                />
+              ))}
+              {screenshots.length > 4 && (
+                <span className={styles.previewScreenshotMore}>
+                  +{screenshots.length - 4} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Date */}
         <p className={styles.previewDate}>
           Last updated:{" "}
           {new Date(project.updated_at).toLocaleDateString("en-US", {
@@ -198,5 +310,5 @@ function PreviewPanel({ project }: { project?: ProjectRow | null }) {
         </p>
       </div>
     </Card>
-  )
+  );
 }
