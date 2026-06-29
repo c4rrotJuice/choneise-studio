@@ -12,6 +12,7 @@ export type ProjectRow = {
   version: string | null;
   hosting_stack: Record<string, unknown> | null;
   tech_stack: unknown[] | null;
+  public: boolean | null;
   updates_future_plans: string | null;
   created_at: string;
   updated_at: string;
@@ -77,6 +78,7 @@ export async function createProject(payload: {
   version?: string;
   hosting_stack?: Record<string, unknown> | null;
   tech_stack?: unknown[] | null;
+  public?: boolean | null;
   updates_future_plans?: string | null;
 }): Promise<ApiResult<ProjectRow>> {
   return apiFetch<ProjectRow>({
@@ -97,6 +99,7 @@ export async function updateProject(payload: {
   version?: string;
   hosting_stack?: Record<string, unknown> | null;
   tech_stack?: unknown[] | null;
+  public?: boolean | null;
   updates_future_plans?: string | null;
 }): Promise<ApiResult<ProjectRow>> {
   return apiFetch<ProjectRow>({

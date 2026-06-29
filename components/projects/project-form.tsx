@@ -47,6 +47,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   const [status, setStatus] = useState(project?.status ?? "draft");
   const [kind, setKind] = useState(project?.kind ?? "");
   const [version, setVersion] = useState(project?.version ?? "");
+  const [isPublic, setIsPublic] = useState(project?.public ?? false);
   const [slugManuallySet, setSlugManuallySet] = useState(Boolean(project));
 
   // ── Hosting stack ──
@@ -213,9 +214,8 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   }, []);
 
   // ── Publish helpers ──
-  const handlePublish = useCallback(() => setStatus("published"), []);
-  const handleDraft = useCallback(() => setStatus("draft"), []);
-  const handleArchive = useCallback(() => setStatus("archived"), []);
+  const handlePublish = useCallback(() => setIsPublic(true), []);
+  const handleUnpublish = useCallback(() => setIsPublic(false), []);
 
   // Cleanup autosave timer
   useEffect(() => {
@@ -236,6 +236,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
       version: version || undefined,
       hosting_stack: hostingStackToObject(),
       tech_stack: techStackToArray(),
+      public: isPublic || undefined,
       updates_future_plans: updatesFuturePlans || undefined,
     };
   }, [
@@ -249,6 +250,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
     version,
     hostingStack,
     techStack,
+    isPublic,
     updatesFuturePlans,
   ]);
 
@@ -284,7 +286,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
 
   // ── Validation helpers ──
   const hasScreenshots = screenshots.length >= 2;
-  const canPublish = status === "published" && hasScreenshots;
+  const canPublish = isPublic && hasScreenshots;
 
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -662,30 +664,32 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
           Publish controls
           ══════════════════════════════════════════════════════════════════ */}
       <fieldset className={styles.formSection}>
-        <legend className={styles.formSectionTitle}>Publish Controls</legend>
+        <legend className={styles.formSectionTitle}>Public Visibility</legend>
         <p className={styles.formSectionHint}>
-          Current status: <strong>{status}</strong>. Publishing makes the
-          project visible on <code>/projects</code>.
+          Current status: <strong>{status}</strong>.{" "}
+          {isPublic
+            ? "This project is visible on"
+            : "Make this project visible on"}{" "}
+          <code>/projects</code>.
         </p>
 
-        {status === "published" && !hasScreenshots && (
+        {isPublic && !hasScreenshots && (
           <div className={styles.formWarning}>
-            ⚠ At least 2 screenshots are required for a published project.
+            ⚠ At least 2 screenshots are required for a public project.
           </div>
         )}
 
         <div className={styles.publishActions}>
-          {status !== "draft" && (
+          {isPublic ? (
             <Button
               type="button"
               variant="secondary"
               size="standard"
-              onClick={handleDraft}
+              onClick={handleUnpublish}
             >
-              Save as Draft
+              Make Private
             </Button>
-          )}
-          {status !== "published" && (
+          ) : (
             <Button
               type="button"
               variant="primary"
@@ -693,17 +697,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
               onClick={handlePublish}
               disabled={!hasScreenshots}
             >
-              Publish
-            </Button>
-          )}
-          {status !== "archived" && (
-            <Button
-              type="button"
-              variant="quiet"
-              size="standard"
-              onClick={handleArchive}
-            >
-              Archive
+              Make Public
             </Button>
           )}
         </div>

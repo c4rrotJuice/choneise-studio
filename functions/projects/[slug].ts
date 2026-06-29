@@ -1,21 +1,21 @@
-import { createAdminClient } from "../_lib/admin"
+import { createAdminClient } from "../_lib/admin";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface ProjectRow {
-  slug: string
-  title: string
-  description: string | null
-  summary: string | null
-  body: string | null
-  status: string
-  kind: string | null
-  version: string | null
-  hosting_stack: Record<string, unknown> | null
-  tech_stack: unknown[] | null
-  updates_future_plans: string | null
+  slug: string;
+  title: string;
+  description: string | null;
+  summary: string | null;
+  body: string | null;
+  status: string;
+  kind: string | null;
+  version: string | null;
+  hosting_stack: Record<string, unknown> | null;
+  tech_stack: unknown[] | null;
+  updates_future_plans: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -23,8 +23,8 @@ interface ProjectRow {
 // ---------------------------------------------------------------------------
 
 interface Env {
-  NEXT_PUBLIC_SUPABASE_URL: string
-  SUPABASE_SERVICE_ROLE_KEY: string
+  NEXT_PUBLIC_SUPABASE_URL: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -235,12 +235,12 @@ function html(
 ${body}
 <footer class="footer">&copy; ${new Date().getFullYear()} Choneise Studio</footer>
 </body>
-</html>`
+</html>`;
 
   return new Response(page, {
     status,
     headers: { "Content-Type": "text/html; charset=utf-8" },
-  })
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -248,12 +248,12 @@ ${body}
 // ---------------------------------------------------------------------------
 
 export async function onRequestGet(context: {
-  request: Request
-  params: { slug: string }
-  env: Env
+  request: Request;
+  params: { slug: string };
+  env: Env;
 }): Promise<Response> {
-  const { params, env } = context
-  const slug = params.slug
+  const { params, env } = context;
+  const slug = params.slug;
 
   if (!env.SUPABASE_SERVICE_ROLE_KEY || !env.NEXT_PUBLIC_SUPABASE_URL) {
     return html(
@@ -261,17 +261,17 @@ export async function onRequestGet(context: {
       "Project details are temporarily unavailable.",
       `<main><div class="shell"><div class="container"><header class="hero"><p class="kicker">Project</p><h1 class="title">Unavailable</h1><p class="copy">Project details are temporarily unavailable. Please check back later.</p></header></div></div></main>`,
       503,
-    )
+    );
   }
 
   try {
-    const admin = createAdminClient(env)
+    const admin = createAdminClient(env);
     const { data, error } = await admin
       .from("projects")
       .select("*")
       .eq("slug", slug)
-      .eq("status", "published")
-      .single()
+      .eq("public", true)
+      .single();
 
     if (error || !data) {
       return html(
@@ -279,17 +279,17 @@ export async function onRequestGet(context: {
         "The requested project could not be found.",
         `<main><div class="shell"><div class="container"><header class="hero"><p class="kicker">Project</p><h1 class="title">Not Found</h1><p class="copy">The project you're looking for doesn't exist or hasn't been published yet.</p><p class="copy mt4"><a href="/projects" style="color:rgba(245,245,243,0.72)">← Back to projects</a></p></header></div></div></main>`,
         404,
-      )
+      );
     }
 
-    const project = data as ProjectRow
+    const project = data as ProjectRow;
 
     // Tech stack
     const techItems: string[] = Array.isArray(project.tech_stack)
       ? project.tech_stack
           .map((item) => (typeof item === "string" ? item : String(item)))
           .filter((v, i, a) => a.indexOf(v) === i)
-      : []
+      : [];
 
     // Hosting entries
     const hostingEntries: Array<[string, string]> =
@@ -297,11 +297,9 @@ export async function onRequestGet(context: {
       typeof project.hosting_stack === "object" &&
       !Array.isArray(project.hosting_stack)
         ? Object.entries(project.hosting_stack)
-            .filter(
-              ([, v]) => typeof v === "string" || typeof v === "number",
-            )
+            .filter(([, v]) => typeof v === "string" || typeof v === "number")
             .map(([k, v]) => [k, String(v)])
-        : []
+        : [];
 
     const statusLabel: Record<string, string> = {
       published: "Published",
@@ -309,9 +307,9 @@ export async function onRequestGet(context: {
       Building: "Building",
       Experiment: "Experiment",
       Dormant: "Dormant",
-    }
+    };
 
-    const kindLabel = project.kind ? ` \u00b7 ${project.kind}` : ""
+    const kindLabel = project.kind ? ` \u00b7 ${project.kind}` : "";
 
     const asideHtml = [
       project.version
@@ -336,19 +334,19 @@ export async function onRequestGet(context: {
         : "",
     ]
       .filter(Boolean)
-      .join("")
+      .join("");
 
     const summaryHtml = project.summary
       ? `<h2 class="sectionTitle">Summary</h2><p class="copy mt4">${project.summary}</p>`
-      : ""
+      : "";
 
     const bodyHtml = project.body
       ? `<h2 class="sectionTitle mb8" style="margin-top:var(--studio-space-8)">Details</h2><p class="copy mt4 pre-wrap">${project.body}</p>`
-      : ""
+      : "";
 
     const updatesHtml = project.updates_future_plans
       ? `<h2 class="sectionTitle mb8" style="margin-top:var(--studio-space-8)">Updates &amp; Future Plans</h2><p class="copy mt4 pre-wrap">${project.updates_future_plans}</p>`
-      : ""
+      : "";
 
     const mainHtml = `
 <main>
@@ -375,17 +373,17 @@ export async function onRequestGet(context: {
       </div>
     </section>
   </div>
-</main>`
+</main>`;
 
-    const description = project.description ?? project.summary ?? ""
+    const description = project.description ?? project.summary ?? "";
 
-    return html(project.title, description, mainHtml)
+    return html(project.title, description, mainHtml);
   } catch {
     return html(
       "Project Unavailable",
       "An unexpected error occurred.",
       `<main><div class="shell"><div class="container"><header class="hero"><p class="kicker">Project</p><h1 class="title">Unavailable</h1><p class="copy">Something went wrong loading this project. Please try again later.</p><p class="copy mt4"><a href="/projects" style="color:rgba(245,245,243,0.72)">← Back to projects</a></p></header></div></div></main>`,
       500,
-    )
+    );
   }
 }

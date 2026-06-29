@@ -66,8 +66,8 @@ export type PublishedProject = {
 };
 
 /**
- * Fetch published projects for the /projects discovery page.
- * Only returns projects with status "published".
+ * Fetch public projects for the /projects discovery page.
+ * Only returns projects where the `public` boolean column is true.
  * Returns an empty array on error (caller should handle empty state).
  */
 export async function getPublishedProjects(): Promise<PublishedProject[]> {
@@ -79,7 +79,7 @@ export async function getPublishedProjects(): Promise<PublishedProject[]> {
       .select(
         "slug, title, description, status, kind, version, summary, hosting_stack, tech_stack",
       )
-      .eq("status", "published")
+      .eq("public", true)
       .order("created_at", { ascending: false });
 
     if (error || !data) {

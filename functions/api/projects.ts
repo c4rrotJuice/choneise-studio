@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { createFunctionsClient, type FunctionsEnv } from "../_lib/supabase";
 import { createAdminClient } from "../_lib/admin";
-import type { Json, TablesInsert, TablesUpdate } from "../../supabase/types/database";
+import type {
+  Json,
+  TablesInsert,
+  TablesUpdate,
+} from "../../supabase/types/database";
 
 // ── Env ─────────────────────────────────────────────────────────────────────
 
@@ -50,6 +54,7 @@ const createProjectSchema = z.object({
   version: z.string().max(50).optional().or(z.literal("")),
   hosting_stack: z.record(z.string(), z.unknown()).nullable().optional(),
   tech_stack: z.array(z.unknown()).nullable().optional(),
+  public: z.boolean().nullable().optional(),
   updates_future_plans: z.string().nullable().optional().or(z.literal("")),
 });
 
@@ -85,6 +90,7 @@ const updateProjectSchema = z.object({
   version: z.string().max(50).optional().or(z.literal("")),
   hosting_stack: z.record(z.string(), z.unknown()).nullable().optional(),
   tech_stack: z.array(z.unknown()).nullable().optional(),
+  public: z.boolean().nullable().optional(),
   updates_future_plans: z.string().nullable().optional().or(z.literal("")),
 });
 
@@ -215,6 +221,7 @@ export async function onRequestPost(context: {
     version,
     hosting_stack,
     tech_stack,
+    public: isPublic,
     updates_future_plans,
   } = parsed.data;
   const admin = createAdminClient(env);
@@ -230,8 +237,9 @@ export async function onRequestPost(context: {
       status,
       kind: kind || null,
       version: version || null,
-      hosting_stack: hosting_stack as Json ?? null,
-      tech_stack: tech_stack as Json ?? null,
+      hosting_stack: (hosting_stack as Json) ?? null,
+      tech_stack: (tech_stack as Json) ?? null,
+      public: isPublic ?? null,
       updates_future_plans: updates_future_plans || null,
     })
     .select("*")
@@ -295,7 +303,9 @@ export async function onRequestPut(context: {
     payload.version = fields.version === "" ? null : fields.version;
   if (fields.hosting_stack !== undefined)
     payload.hosting_stack = fields.hosting_stack as Json;
-  if (fields.tech_stack !== undefined) payload.tech_stack = fields.tech_stack as Json;
+  if (fields.tech_stack !== undefined)
+    payload.tech_stack = fields.tech_stack as Json;
+  if (fields.public !== undefined) payload.public = fields.public ?? null;
   if (fields.updates_future_plans !== undefined)
     payload.updates_future_plans =
       fields.updates_future_plans === "" ? null : fields.updates_future_plans;

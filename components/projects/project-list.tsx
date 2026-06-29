@@ -116,6 +116,13 @@ export function ProjectList({ projects, onEdit, onDeleted }: ProjectListProps) {
                       {hostingStack.length !== 1 ? "s" : ""}
                     </span>
                   )}
+                  <span
+                    className={styles.listItemChip}
+                    data-kind={project.public ? true : undefined}
+                    data-muted={!project.public ? true : undefined}
+                  >
+                    {project.public ? "Public" : "Private"}
+                  </span>
                 </div>
 
                 <p className={styles.listItemDate}>
