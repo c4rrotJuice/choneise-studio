@@ -9,12 +9,8 @@ import {
   type ProjectRow,
   type ApiError,
 } from "@/lib/api/projects";
-import {
-  getAssets,
-  createAsset,
-  deleteAsset,
-  type AssetRow,
-} from "@/lib/api/assets";
+import { getAssets, updateAssetProject, type AssetRow } from "@/lib/api/assets";
+import { AssetPickerModal } from "./asset-picker-modal";
 import styles from "./projects.module.css";
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -84,7 +80,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   // ── Screenshots ──
   const [screenshots, setScreenshots] = useState<AssetRow[]>([]);
   const [screenshotsLoading, setScreenshotsLoading] = useState(isEditing);
-  const [newScreenshotUrl, setNewScreenshotUrl] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // ── Form state ──
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -182,22 +178,35 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   }
 
   // ── Screenshots helpers ──
-  const addScreenshot = useCallback(async () => {
-    const url = newScreenshotUrl.trim();
-    if (!url) return;
-    const result = await createAsset({
-      url,
-      type: "image",
-      project_id: project?.id ?? undefined,
-    });
-    if (result.ok && result.data) {
-      setScreenshots((prev) => [...prev, result.data!]);
-      setNewScreenshotUrl("");
-    }
-  }, [newScreenshotUrl, project?.id]);
+  const handleOpenPicker = useCallback(() => {
+    setPickerOpen(true);
+  }, []);
+
+  const handleClosePicker = useCallback(() => {
+    setPickerOpen(false);
+  }, []);
+
+  const handleSelectScreenshots = useCallback(
+    async (selectedIds: string[]) => {
+      if (!project?.id) return;
+      // Link each selected asset to this project
+      for (const assetId of selectedIds) {
+        const result = await updateAssetProject(assetId, project.id);
+        if (result.ok && result.data) {
+          setScreenshots((prev) => {
+            // Don't add duplicates
+            if (prev.some((s) => s.id === assetId)) return prev;
+            return [...prev, result.data!];
+          });
+        }
+      }
+    },
+    [project?.id],
+  );
 
   const removeScreenshot = useCallback(async (assetId: string) => {
-    const result = await deleteAsset(assetId);
+    // Unlink the asset (set project_id to null) instead of deleting
+    const result = await updateAssetProject(assetId, null);
     if (result.ok) {
       setScreenshots((prev) => prev.filter((s) => s.id !== assetId));
     }
@@ -596,59 +605,50 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
             Loading screenshots…
           </p>
         ) : screenshots.length > 0 ? (
-          <div className={styles.screenshotGrid}>
-            {screenshots.map((shot, index) => (
-              <div key={shot.id} className={styles.screenshotCard}>
-                <span className={styles.screenshotIndex}>{index + 1}</span>
-                <img
-                  src={shot.url}
-                  alt={`Screenshot ${index + 1}`}
-                  className={styles.screenshotImage}
-                  loading="lazy"
-                />
-                <button
-                  type="button"
-                  className={styles.screenshotRemove}
-                  onClick={() => removeScreenshot(shot.id)}
-                  aria-label={`Remove screenshot ${index + 1}`}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
+          <>
+            <div className={styles.screenshotGrid}>
+              {screenshots.map((shot, index) => (
+                <div key={shot.id} className={styles.screenshotCard}>
+                  <span className={styles.screenshotIndex}>{index + 1}</span>
+                  <img
+                    src={shot.url}
+                    alt={`Screenshot ${index + 1}`}
+                    className={styles.screenshotImage}
+                    loading="lazy"
+                  />
+                  <button
+                    type="button"
+                    className={styles.screenshotRemove}
+                    onClick={() => removeScreenshot(shot.id)}
+                    aria-label={`Remove screenshot ${index + 1}`}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            {project?.id && (
+              <Button
+                type="button"
+                variant="quiet"
+                size="compact"
+                onClick={handleOpenPicker}
+              >
+                + Add more screenshots
+              </Button>
+            )}
+          </>
         ) : (
-          <div className={styles.screenshotEmpty}>
-            No screenshots added yet.
-          </div>
-        )}
-
-        {/* Add new screenshot */}
-        {project?.id && (
-          <div className={styles.screenshotAdd}>
-            <input
-              className={styles.input}
-              type="url"
-              placeholder="https://… screenshot URL"
-              value={newScreenshotUrl}
-              onChange={(e) => setNewScreenshotUrl(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addScreenshot();
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              size="standard"
-              onClick={addScreenshot}
-              disabled={!newScreenshotUrl.trim()}
-            >
-              Add
-            </Button>
-          </div>
+          <button
+            type="button"
+            className={styles.screenshotEmptyButton}
+            onClick={handleOpenPicker}
+          >
+            <span className={styles.screenshotEmptyIcon} aria-hidden>
+              +
+            </span>
+            <span>Add Screenshots</span>
+          </button>
         )}
 
         {fieldErrors.screenshots && (
@@ -738,6 +738,14 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
           {saveState === "error" && "✗ Save failed"}
         </span>
       </div>
+
+      {/* ── Asset picker modal ── */}
+      <AssetPickerModal
+        open={pickerOpen}
+        onClose={handleClosePicker}
+        onSelect={handleSelectScreenshots}
+        excludeIds={screenshots.map((s) => s.id)}
+      />
     </form>
   );
 }

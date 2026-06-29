@@ -441,27 +441,48 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
-.screenshotEmpty {
-    border: var(--studio-border-width-hairline) dashed rgba(245, 245, 243, 0.12);
-    border-radius: var(--studio-radius-3);
-    color: rgba(170, 166, 154, 0.45);
-    font-size: var(--studio-text-sm);
-    font-style: italic;
-    line-height: 1.5;
-    padding: var(--studio-space-6);
-    text-align: center;
-}
-
-.screenshotAdd {
+.screenshotEmptyButton {
+    appearance: none;
     align-items: center;
+    background: none;
+    border: var(--studio-border-width-hairline) dashed rgba(245, 245, 243, 0.15);
+    border-radius: var(--studio-radius-3);
+    color: rgba(170, 166, 154, 0.5);
+    cursor: pointer;
     display: flex;
+    flex-direction: column;
+    font-family: var(--studio-font-sans);
+    font-size: var(--studio-text-sm);
     gap: var(--studio-space-3);
+    inline-size: 100%;
+    line-height: 1.5;
+    padding: var(--studio-space-8);
+    text-align: center;
+    transition:
+        border-color var(--studio-duration-fast) var(--studio-ease-standard),
+        color var(--studio-duration-fast) var(--studio-ease-standard),
+        background var(--studio-duration-fast) var(--studio-ease-standard);
 }
 
-.screenshotAdd .input {
-    flex: 1;
+.screenshotEmptyButton:hover {
+    border-color: rgba(245, 245, 243, 0.3);
+    color: rgba(170, 166, 154, 0.7);
+    background: rgba(245, 245, 243, 0.03);
 }
 
+.screenshotEmptyButton:focus-visible {
+    outline: var(--studio-outline-width) solid var(--studio-color-focus);
+    outline-offset: 2px;
+}
+
+.screenshotEmptyIcon {
+    color: rgba(170, 166, 154, 0.35);
+    font-size: var(--studio-text-2xl);
+    font-weight: var(--studio-font-weight-light);
+    line-height: 1;
+}
+
+/* ── Split editor
 /* ── Split editor ──────────────────────────────────────────────────── */
 
 .splitEditor {

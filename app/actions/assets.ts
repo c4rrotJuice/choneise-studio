@@ -1,48 +1,55 @@
-"use server"
+"use server";
 
-import { createAdminClient } from "@/lib/supabase/admin"
-import type { Database, Json } from "@/supabase/types/database"
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { Database, Json } from "@/supabase/types/database";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
-type AssetRow = Database["public"]["Tables"]["assets"]["Row"]
+type AssetRow = Database["public"]["Tables"]["assets"]["Row"];
 
 type ActionResult<T = void> =
-  | { ok: true; data: T }
-  | { ok: false; error: string }
+  { ok: true; data: T } | { ok: false; error: string };
 
 // ── List ────────────────────────────────────────────────────────────────────
 
-export async function listAssets(projectId?: string): Promise<ActionResult<AssetRow[]>> {
+export async function listAssets(
+  projectId?: string,
+): Promise<ActionResult<AssetRow[]>> {
   try {
-    const admin = createAdminClient()
+    const admin = createAdminClient();
 
-    let query = admin.from("assets").select("*").order("created_at", { ascending: false })
+    let query = admin
+      .from("assets")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (projectId) {
-      query = query.eq("project_id", projectId)
+      query = query.eq("project_id", projectId);
     }
 
-    const { data, error } = await query
+    const { data, error } = await query;
 
-    if (error) return { ok: false, error: error.message }
+    if (error) return { ok: false, error: error.message };
 
-    return { ok: true, data: data as AssetRow[] }
+    return { ok: true, data: data as AssetRow[] };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Failed to list assets" }
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to list assets",
+    };
   }
 }
 
 // ── Create ──────────────────────────────────────────────────────────────────
 
 export async function createAssetRecord(payload: {
-  url: string
-  type: "image" | "document"
-  project_id?: string | null
-  meta?: Json | null
+  url: string;
+  type: "image" | "document";
+  project_id?: string | null;
+  meta?: Json | null;
 }): Promise<ActionResult<AssetRow>> {
   try {
-    const admin = createAdminClient()
+    const admin = createAdminClient();
 
     const { data, error } = await admin
       .from("assets")
@@ -53,13 +60,43 @@ export async function createAssetRecord(payload: {
         meta: (payload.meta ?? null) as unknown as Json | null,
       })
       .select("*")
-      .single()
+      .single();
 
-    if (error) return { ok: false, error: error.message }
+    if (error) return { ok: false, error: error.message };
 
-    return { ok: true, data: data as AssetRow }
+    return { ok: true, data: data as AssetRow };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Failed to create asset" }
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to create asset",
+    };
+  }
+}
+
+// ── Update project link ─────────────────────────────────────────────────────
+
+export async function linkAssetToProject(
+  id: string,
+  projectId: string | null,
+): Promise<ActionResult<AssetRow>> {
+  try {
+    const admin = createAdminClient();
+
+    const { data, error } = await admin
+      .from("assets")
+      .update({ project_id: projectId })
+      .eq("id", id)
+      .select("*")
+      .single();
+
+    if (error) return { ok: false, error: error.message };
+
+    return { ok: true, data: data as AssetRow };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to link asset",
+    };
   }
 }
 
@@ -67,35 +104,38 @@ export async function createAssetRecord(payload: {
 
 export async function deleteAssetRecord(id: string): Promise<ActionResult> {
   try {
-    const admin = createAdminClient()
+    const admin = createAdminClient();
 
     // Fetch the asset to get its storage URL
     const { data: asset } = await admin
       .from("assets")
       .select("url")
       .eq("id", id)
-      .single()
+      .single();
 
-    const { error } = await admin.from("assets").delete().eq("id", id)
+    const { error } = await admin.from("assets").delete().eq("id", id);
 
-    if (error) return { ok: false, error: error.message }
+    if (error) return { ok: false, error: error.message };
 
     // Best-effort storage cleanup
     if (asset?.url) {
-      const marker = "/storage/v1/object/public/studio-assets/"
-      const idx = asset.url.indexOf(marker)
+      const marker = "/storage/v1/object/public/studio-assets/";
+      const idx = asset.url.indexOf(marker);
       if (idx !== -1) {
-        const path = asset.url.slice(idx + marker.length)
+        const path = asset.url.slice(idx + marker.length);
         try {
-          await admin.storage.from("studio-assets").remove([path])
+          await admin.storage.from("studio-assets").remove([path]);
         } catch {
           // Storage cleanup is best-effort
         }
       }
     }
 
-    return { ok: true, data: undefined }
+    return { ok: true, data: undefined };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Failed to delete asset" }
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to delete asset",
+    };
   }
 }
