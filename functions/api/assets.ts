@@ -40,11 +40,8 @@ type _ZodInsertKeysValid = keyof z.infer<
     ];
 
 const patchAssetSchema = z.object({
-  id: z
-    .string()
-    .min(1, "Asset ID is required")
-    .uuid("Must be a valid asset ID"),
-  project_id: z.string().uuid("Must be a valid project ID").nullable(),
+  id: z.string().min(1, "Asset ID is required"),
+  project_id: z.string().nullable().optional(),
 });
 
 const deleteAssetSchema = z.object({
@@ -177,7 +174,7 @@ export async function onRequestPost(context: {
   return json({ ok: true, data }, 201);
 }
 
-export async function onRequestPatch(context: {
+export async function onRequestPut(context: {
   request: Request;
   env: ApiEnv;
 }): Promise<Response> {

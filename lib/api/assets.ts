@@ -73,7 +73,7 @@ export async function updateAssetProject(
   projectId: string | null,
 ): Promise<ApiResult<AssetRow>> {
   return apiFetch<AssetRow>({
-    method: "PATCH",
+    method: "PUT",
     body: JSON.stringify({ id, project_id: projectId }),
   });
 }

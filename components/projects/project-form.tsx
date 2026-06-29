@@ -9,8 +9,7 @@ import {
   type ProjectRow,
   type ApiError,
 } from "@/lib/api/projects";
-import { getAssets, type AssetRow } from "@/lib/api/assets";
-import { linkAssetToProject } from "@/app/actions/assets";
+import { getAssets, updateAssetProject, type AssetRow } from "@/lib/api/assets";
 import { AssetPickerModal } from "./asset-picker-modal";
 import styles from "./projects.module.css";
 
@@ -190,15 +189,14 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
   const handleSelectScreenshots = useCallback(
     async (selectedIds: string[]) => {
       if (!project?.id) return;
-      // Link each selected asset to this project via server action
+      // Link each selected asset to this project
       for (const assetId of selectedIds) {
-        const result = await linkAssetToProject(assetId, project.id);
+        const result = await updateAssetProject(assetId, project.id);
         if (result.ok && result.data) {
-          const linked = result.data as unknown as AssetRow;
           setScreenshots((prev) => {
             // Don't add duplicates
             if (prev.some((s) => s.id === assetId)) return prev;
-            return [...prev, linked];
+            return [...prev, result.data];
           });
         }
       }
@@ -208,7 +206,7 @@ export function ProjectForm({ project, onSaved }: ProjectFormProps) {
 
   const removeScreenshot = useCallback(async (assetId: string) => {
     // Unlink the asset (set project_id to null) instead of deleting
-    const result = await linkAssetToProject(assetId, null);
+    const result = await updateAssetProject(assetId, null);
     if (result.ok) {
       setScreenshots((prev) => prev.filter((s) => s.id !== assetId));
     }

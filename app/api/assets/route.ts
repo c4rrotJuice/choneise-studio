@@ -128,9 +128,9 @@ export async function POST(request: NextRequest) {
   return json({ ok: true, data }, 201);
 }
 
-// ── PATCH /api/assets ─────────────────────────────────────────────────────
+// ── PUT /api/assets ─────────────────────────────────────────────────────
 
-export async function PATCH(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   const authError = await requireAuth();
   if (authError) return authError;
 
