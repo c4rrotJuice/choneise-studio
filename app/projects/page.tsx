@@ -6,6 +6,8 @@ import { getPublishedProjects } from "@/lib/content/projects-server";
 import { siteConfig } from "../metadata";
 import styles from "../content-pages.module.css";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Projects",
   description:
