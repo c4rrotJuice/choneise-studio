@@ -1,35 +1,58 @@
-import { z } from "zod"
-import { createFunctionsClient, type FunctionsEnv } from "../_lib/supabase"
-import { createAdminClient } from "../_lib/admin"
-import type { Json, TablesInsert } from "../../supabase/types/database"
+import { z } from "zod";
+import { createFunctionsClient, type FunctionsEnv } from "../_lib/supabase";
+import { createAdminClient } from "../_lib/admin";
+import type { Json, TablesInsert } from "../../supabase/types/database";
 
 // ── Env ─────────────────────────────────────────────────────────────────────
 
 interface ApiEnv extends FunctionsEnv {
-  SUPABASE_SERVICE_ROLE_KEY: string
+  SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
 // ── Zod schemas ────────────────────────────────────────────────────────────
 
-const assetTypes = ["image", "document"] as const
+const assetTypes = ["image", "document"] as const;
 
 const createAssetSchema = z.object({
   url: z.string().min(1, "URL is required").url("Must be a valid URL"),
   type: z.enum(assetTypes, {
     message: 'Type must be "image" or "document"',
   }),
-  project_id: z.string().uuid("Must be a valid project ID").optional().nullable(),
+  project_id: z
+    .string()
+    .uuid("Must be a valid project ID")
+    .optional()
+    .nullable(),
   meta: z.record(z.string(), z.unknown()).optional().nullable(),
-})
+});
 
 // Build-time guard: ensures Zod schema keys are a valid subset of DB columns.
-type _ZodInsertKeysValid = keyof z.infer<typeof createAssetSchema> extends keyof TablesInsert<"assets">
+type _ZodInsertKeysValid = keyof z.infer<
+  typeof createAssetSchema
+> extends keyof TablesInsert<"assets">
   ? true
-  : ["Zod createAssetSchema has keys not in DB — check for a renamed column:", Exclude<keyof z.infer<typeof createAssetSchema>, keyof TablesInsert<"assets">>]
+  : [
+      "Zod createAssetSchema has keys not in DB — check for a renamed column:",
+      Exclude<
+        keyof z.infer<typeof createAssetSchema>,
+        keyof TablesInsert<"assets">
+      >,
+    ];
+
+const patchAssetSchema = z.object({
+  id: z
+    .string()
+    .min(1, "Asset ID is required")
+    .uuid("Must be a valid asset ID"),
+  project_id: z.string().uuid("Must be a valid project ID").nullable(),
+});
 
 const deleteAssetSchema = z.object({
-  id: z.string().min(1, "Asset ID is required").uuid("Must be a valid asset ID"),
-})
+  id: z
+    .string()
+    .min(1, "Asset ID is required")
+    .uuid("Must be a valid asset ID"),
+});
 
 // ── Response helpers ────────────────────────────────────────────────────────
 
@@ -37,17 +60,17 @@ function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
-  })
+  });
 }
 
 function formatZodErrors(error: z.ZodError): Record<string, string[]> {
-  const acc: Record<string, string[]> = {}
+  const acc: Record<string, string[]> = {};
   for (const issue of error.issues) {
-    const key = issue.path.join(".") || "root"
-    if (!acc[key]) acc[key] = []
-    acc[key].push(issue.message)
+    const key = issue.path.join(".") || "root";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(issue.message);
   }
-  return acc
+  return acc;
 }
 
 // ── Auth guard ──────────────────────────────────────────────────────────────
@@ -56,12 +79,12 @@ async function requireAuth(
   request: Request,
   env: FunctionsEnv,
 ): Promise<Response | null> {
-  const { supabase } = createFunctionsClient(request, env)
-  const { data } = await supabase.auth.getUser()
+  const { supabase } = createFunctionsClient(request, env);
+  const { data } = await supabase.auth.getUser();
   if (!data.user) {
-    return json({ errors: { root: ["Unauthorized"] } }, 401)
+    return json({ errors: { root: ["Unauthorized"] } }, 401);
   }
-  return null
+  return null;
 }
 
 // ── Storage helper ──────────────────────────────────────────────────────────
@@ -72,64 +95,66 @@ async function requireAuth(
  * Returns: abc/file.png
  */
 function storagePathFromUrl(url: string, bucketName: string): string | null {
-  const marker = `/storage/v1/object/public/${bucketName}/`
-  const idx = url.indexOf(marker)
-  if (idx === -1) return null
-  return url.slice(idx + marker.length)
+  const marker = `/storage/v1/object/public/${bucketName}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.slice(idx + marker.length);
 }
 
 // ── Route handlers ──────────────────────────────────────────────────────────
 
-export async function onRequestGet(
-  context: { request: Request; env: ApiEnv },
-): Promise<Response> {
-  const { request, env } = context
+export async function onRequestGet(context: {
+  request: Request;
+  env: ApiEnv;
+}): Promise<Response> {
+  const { request, env } = context;
 
-  const authError = await requireAuth(request, env)
-  if (authError) return authError
+  const authError = await requireAuth(request, env);
+  if (authError) return authError;
 
-  const admin = createAdminClient(env)
+  const admin = createAdminClient(env);
 
-  const url = new URL(request.url)
-  const projectId = url.searchParams.get("project_id")
+  const url = new URL(request.url);
+  const projectId = url.searchParams.get("project_id");
 
-  let query = admin.from("assets").select("*")
+  let query = admin.from("assets").select("*");
 
   if (projectId) {
-    query = query.eq("project_id", projectId)
+    query = query.eq("project_id", projectId);
   }
 
-  const { data, error } = await query.order("created_at", { ascending: false })
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
-    return json({ errors: { root: ["Failed to fetch assets"] } }, 500)
+    return json({ errors: { root: ["Failed to fetch assets"] } }, 500);
   }
 
-  return json({ ok: true, data: data ?? [] })
+  return json({ ok: true, data: data ?? [] });
 }
 
-export async function onRequestPost(
-  context: { request: Request; env: ApiEnv },
-): Promise<Response> {
-  const { request, env } = context
+export async function onRequestPost(context: {
+  request: Request;
+  env: ApiEnv;
+}): Promise<Response> {
+  const { request, env } = context;
 
-  const authError = await requireAuth(request, env)
-  if (authError) return authError
+  const authError = await requireAuth(request, env);
+  if (authError) return authError;
 
-  let body: unknown
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return json({ errors: { root: ["Invalid JSON body"] } }, 400)
+    return json({ errors: { root: ["Invalid JSON body"] } }, 400);
   }
 
-  const parsed = createAssetSchema.safeParse(body)
+  const parsed = createAssetSchema.safeParse(body);
   if (!parsed.success) {
-    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
+    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422);
   }
 
-  const { url, type, project_id, meta } = parsed.data
-  const admin = createAdminClient(env)
+  const { url, type, project_id, meta } = parsed.data;
+  const admin = createAdminClient(env);
 
   const { data, error } = await admin
     .from("assets")
@@ -140,61 +165,111 @@ export async function onRequestPost(
       meta: (meta ?? null) as Json,
     })
     .select("*")
-    .single()
+    .single();
 
   if (error) {
-    return json({ ok: false, errors: { root: ["Failed to create asset"] } }, 500)
+    return json(
+      { ok: false, errors: { root: ["Failed to create asset"] } },
+      500,
+    );
   }
 
-  return json({ ok: true, data }, 201)
+  return json({ ok: true, data }, 201);
 }
 
-export async function onRequestDelete(
-  context: { request: Request; env: ApiEnv },
-): Promise<Response> {
-  const { request, env } = context
+export async function onRequestPatch(context: {
+  request: Request;
+  env: ApiEnv;
+}): Promise<Response> {
+  const { request, env } = context;
 
-  const authError = await requireAuth(request, env)
-  if (authError) return authError
+  const authError = await requireAuth(request, env);
+  if (authError) return authError;
 
-  let body: unknown
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return json({ errors: { root: ["Invalid JSON body"] } }, 400)
+    return json({ errors: { root: ["Invalid JSON body"] } }, 400);
   }
 
-  const parsed = deleteAssetSchema.safeParse(body)
+  const parsed = patchAssetSchema.safeParse(body);
   if (!parsed.success) {
-    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422)
+    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422);
   }
 
-  const admin = createAdminClient(env)
+  const admin = createAdminClient(env);
+
+  const { data, error } = await admin
+    .from("assets")
+    .update({ project_id: parsed.data.project_id })
+    .eq("id", parsed.data.id)
+    .select("*")
+    .single();
+
+  if (error) {
+    return json(
+      { ok: false, errors: { root: ["Failed to update asset"] } },
+      500,
+    );
+  }
+
+  return json({ ok: true, data });
+}
+
+export async function onRequestDelete(context: {
+  request: Request;
+  env: ApiEnv;
+}): Promise<Response> {
+  const { request, env } = context;
+
+  const authError = await requireAuth(request, env);
+  if (authError) return authError;
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ errors: { root: ["Invalid JSON body"] } }, 400);
+  }
+
+  const parsed = deleteAssetSchema.safeParse(body);
+  if (!parsed.success) {
+    return json({ ok: false, errors: formatZodErrors(parsed.error) }, 422);
+  }
+
+  const admin = createAdminClient(env);
 
   // Fetch the asset first to get its URL for storage cleanup
   const { data: asset } = await admin
     .from("assets")
     .select("url")
     .eq("id", parsed.data.id)
-    .single()
+    .single();
 
-  const { error } = await admin.from("assets").delete().eq("id", parsed.data.id)
+  const { error } = await admin
+    .from("assets")
+    .delete()
+    .eq("id", parsed.data.id);
 
   if (error) {
-    return json({ ok: false, errors: { root: ["Failed to delete asset"] } }, 500)
+    return json(
+      { ok: false, errors: { root: ["Failed to delete asset"] } },
+      500,
+    );
   }
 
   // Best-effort storage cleanup
   if (asset?.url) {
-    const path = storagePathFromUrl(asset.url, "studio-assets")
+    const path = storagePathFromUrl(asset.url, "studio-assets");
     if (path) {
       try {
-        await admin.storage.from("studio-assets").remove([path])
+        await admin.storage.from("studio-assets").remove([path]);
       } catch {
         // Storage cleanup is best-effort — don't fail the request
       }
     }
   }
 
-  return json({ ok: true, data: undefined })
+  return json({ ok: true, data: undefined });
 }
