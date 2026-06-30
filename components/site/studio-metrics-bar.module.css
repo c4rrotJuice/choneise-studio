@@ -1,0 +1,116 @@
+.root {
+  align-items: start;
+  border: var(--studio-border-width-regular) solid rgba(245, 245, 243, 0.1);
+  border-radius: var(--studio-radius-4);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-inline: auto;
+  max-inline-size: var(--studio-container-md);
+  position: relative;
+  z-index: var(--studio-layer-content);
+}
+
+.metric {
+  align-items: center;
+  border-inline-end: var(--studio-border-width-hairline) solid rgba(245, 245, 243, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: var(--studio-space-1);
+  padding-block: var(--studio-space-5);
+  padding-inline: var(--studio-space-4);
+  text-align: center;
+}
+
+.metric:last-child {
+  border-inline-end: none;
+}
+
+/* ── Icon ── */
+
+.metricIcon {
+  color: rgba(170, 166, 154, 0.54);
+  display: flex;
+  margin-block-end: var(--studio-space-2);
+}
+
+/* ── Value ── */
+
+.metricValue {
+  color: rgba(245, 245, 243, 0.88);
+  font-size: var(--studio-text-xl);
+  font-weight: var(--studio-font-weight-regular);
+  line-height: var(--studio-leading-heading);
+}
+
+/* ── Label ── */
+
+.metricLabel {
+  color: rgba(170, 166, 154, 0.56);
+  font-size: var(--studio-text-xs);
+  letter-spacing: var(--studio-tracking-label);
+  line-height: var(--studio-leading-heading);
+  text-transform: uppercase;
+}
+
+/* ── Sublabel (second line for label) ── */
+
+.metricSublabel {
+  color: rgba(170, 166, 154, 0.42);
+  font-size: var(--studio-text-xs);
+  letter-spacing: var(--studio-tracking-label);
+  line-height: var(--studio-leading-heading);
+  margin-block-start: calc(var(--studio-space-1) * -1);
+  text-transform: uppercase;
+}
+
+/* ── Hover lift (subtle, not flashy) ── */
+
+.metric {
+  transition: background-color var(--studio-duration-fast) var(--studio-ease-standard);
+}
+
+.metric:hover {
+  background: rgba(245, 245, 243, 0.025);
+}
+
+/* ── Responsive: 2-column wrap on mobile ── */
+
+@media (max-width: 48rem) {
+  .root {
+    border-radius: var(--studio-radius-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+  }
+
+  .metric {
+    border-block-end: var(--studio-border-width-hairline) solid rgba(245, 245, 243, 0.08);
+    border-inline-end: var(--studio-border-width-hairline) solid rgba(245, 245, 243, 0.08);
+    padding-block: var(--studio-space-4);
+    padding-inline: var(--studio-space-3);
+  }
+
+  .metric:nth-child(even) {
+    border-inline-end: none;
+  }
+
+  .metric:nth-child(n + 4) {
+    border-block-end: none;
+  }
+
+  /* Last child in a 2-col grid (5th item, 2nd row 2nd col) needs no bottom border */
+  .metric:last-child {
+    border-block-end: none;
+    border-inline-end: none;
+  }
+}
+
+@media (max-width: 34rem) {
+  .metric {
+    padding-block: var(--studio-space-3);
+    padding-inline: var(--studio-space-2);
+  }
+
+  .metricValue {
+    font-size: var(--studio-text-lg);
+  }
+}

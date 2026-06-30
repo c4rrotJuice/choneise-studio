@@ -4,7 +4,7 @@ import { Stack } from "@/components/layout/Stack";
 import { ProjectCard } from "@/components/project/project-card";
 import { SiteFooter, SiteNav } from "@/components/site/chrome";
 import { Button } from "@/components/ui/Button";
-import { LogoMarquee } from "@/components/ui/logo-marquee";
+import { StudioMetricsBar } from "@/components/site/studio-metrics-bar";
 import { getFeaturedProjects } from "@/lib/content/projects-server";
 import {
   currentBuilds,
@@ -42,7 +42,7 @@ export default async function Home() {
                   variant="primary"
                   className={styles.heroCta}
                 >
-                  View our Tools
+                  Explore Projects
                 </Button>
               </div>
             </Stack>
@@ -50,7 +50,7 @@ export default async function Home() {
           </section>
         </Container>
 
-        <LogoMarquee />
+        <StudioMetricsBar />
         <div className={styles.scrollCue}>
           <span>Scroll to explore</span>
           <span className={styles.scrollDot} />
