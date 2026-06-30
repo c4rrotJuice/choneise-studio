@@ -1,22 +1,26 @@
-import { Container } from "@/components/layout/Container"
-import { HeroBackground } from "@/components/layout/hero-background"
-import { Stack } from "@/components/layout/Stack"
-import { ProjectCard } from "@/components/project/project-card"
-import { SiteFooter, SiteNav } from "@/components/site/chrome"
-import { Button } from "@/components/ui/Button"
-import { LogoMarquee } from "@/components/ui/logo-marquee"
-import { getFeaturedProjects } from "@/lib/content/projects-server"
-import { currentBuilds, featuredProjects as fallbackProjects, philosophyPrinciples } from "./site-data"
-import styles from "./page.module.css"
+import { Container } from "@/components/layout/Container";
+import { ProductConstellationHero } from "@/components/layout/product-constellation-hero";
+import { Stack } from "@/components/layout/Stack";
+import { ProjectCard } from "@/components/project/project-card";
+import { SiteFooter, SiteNav } from "@/components/site/chrome";
+import { Button } from "@/components/ui/Button";
+import { LogoMarquee } from "@/components/ui/logo-marquee";
+import { getFeaturedProjects } from "@/lib/content/projects-server";
+import {
+  currentBuilds,
+  featuredProjects as fallbackProjects,
+  philosophyPrinciples,
+} from "./site-data";
+import styles from "./page.module.css";
 
 export default async function Home() {
-  const dbProjects = await getFeaturedProjects()
-  const projects = dbProjects.length > 0 ? dbProjects : fallbackProjects
+  const dbProjects = await getFeaturedProjects();
+  const projects = dbProjects.length > 0 ? dbProjects : fallbackProjects;
 
   return (
     <main className={styles.page}>
       <div className={styles.heroShell}>
-        <HeroBackground />
+        <ProductConstellationHero />
         <SiteNav active="/" />
         <Container>
           <section className={styles.hero} aria-labelledby="hero-title">
@@ -28,10 +32,16 @@ export default async function Home() {
                   <span>worth existing.</span>
                 </h1>
                 <p className={styles.heroCopy}>
-                  Choneise is a digital workshop for building useful software, tools and systems on
-                  the web. Some for ourselves, some for others. All with care.
+                  Choneise is a digital workshop for building useful software,
+                  tools and systems on the web. Some for ourselves, some for
+                  others. All with care.
                 </p>
-                <Button as="a" href="/projects" variant="primary" className={styles.heroCta}>
+                <Button
+                  as="a"
+                  href="/projects"
+                  variant="primary"
+                  className={styles.heroCta}
+                >
                   View our Tools
                 </Button>
               </div>
@@ -47,7 +57,11 @@ export default async function Home() {
         </div>
       </div>
       <Container>
-        <section id="studio" className={styles.narrative} aria-labelledby="studio-title">
+        <section
+          id="studio"
+          className={styles.narrative}
+          aria-labelledby="studio-title"
+        >
           <p className={styles.narrativeKicker}>Studio Narrative</p>
           <div className={styles.narrativeGrid}>
             <h2 id="studio-title" className={styles.narrativeTitle}>
@@ -55,21 +69,25 @@ export default async function Home() {
             </h2>
             <div className={styles.narrativeCopy}>
               <p>
-                Choneise is an independent product studio shaped around product-first work:
-                practical software, durable systems, and focused experiments that can become more
-                than one-off releases.
+                Choneise is an independent product studio shaped around
+                product-first work: practical software, durable systems, and
+                focused experiments that can become more than one-off releases.
               </p>
               <p>
-                We build for long-term ownership, choosing selective client work when the problem
-                deserves the same care as our own tools. The studio stays small so the work can stay
-                deliberate.
+                We build for long-term ownership, choosing selective client work
+                when the problem deserves the same care as our own tools. The
+                studio stays small so the work can stay deliberate.
               </p>
             </div>
           </div>
         </section>
       </Container>
       <Container>
-        <section id="featured-work" className={styles.featuredWork} aria-labelledby="featured-work-title">
+        <section
+          id="featured-work"
+          className={styles.featuredWork}
+          aria-labelledby="featured-work-title"
+        >
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionKicker}>Featured Work</p>
@@ -90,7 +108,11 @@ export default async function Home() {
         </section>
       </Container>
       <Container>
-        <section id="current-builds" className={styles.currentBuilds} aria-labelledby="current-builds-title">
+        <section
+          id="current-builds"
+          className={styles.currentBuilds}
+          aria-labelledby="current-builds-title"
+        >
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionKicker}>Current Builds</p>
@@ -111,7 +133,11 @@ export default async function Home() {
         </section>
       </Container>
       <Container>
-        <section id="philosophy" className={styles.philosophy} aria-labelledby="philosophy-title">
+        <section
+          id="philosophy"
+          className={styles.philosophy}
+          aria-labelledby="philosophy-title"
+        >
           <div className={styles.philosophyHeader}>
             <p className={styles.sectionKicker}>Build Philosophy</p>
             <h2 id="philosophy-title" className={styles.philosophyTitle}>
@@ -121,7 +147,9 @@ export default async function Home() {
           <div className={styles.principles}>
             {philosophyPrinciples.map((principle, index) => (
               <article className={styles.principle} key={principle.title}>
-                <span className={styles.principleNumber}>{String(index + 1).padStart(2, "0")}</span>
+                <span className={styles.principleNumber}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
                 <div>
                   <h3 className={styles.principleTitle}>{principle.title}</h3>
                   <p className={styles.principleCopy}>{principle.copy}</p>
@@ -133,5 +161,5 @@ export default async function Home() {
       </Container>
       <SiteFooter />
     </main>
-  )
+  );
 }
