@@ -16,6 +16,13 @@ interface ProjectRow {
   hosting_stack: Record<string, unknown> | null;
   tech_stack: unknown[] | null;
   updates_future_plans: string | null;
+  id: string;
+}
+
+interface AssetRow {
+  id: string;
+  url: string;
+  type: string;
 }
 
 interface Env {
@@ -276,6 +283,22 @@ a{color:inherit;text-decoration:none}
 .pageBack{color:rgba(245,245,243,0.72);font-size:var(--studio-text-sm)}
 .pageBack:hover{text-decoration:underline}
 
+/* ── Screenshot gallery ── */
+.galleryGrid{
+  display:grid;
+  gap:var(--studio-space-3);
+  grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));
+  margin-top:var(--studio-space-8)
+}
+.galleryImage{
+  aspect-ratio:16/9;
+  background:var(--studio-color-charcoal-950);
+  border:var(--studio-border-width-hairline) solid rgba(245,245,243,0.1);
+  border-radius:var(--studio-radius-4);
+  width:100%;
+  object-fit:cover
+}
+
 /* ── Footer (exact match: components/site/chrome.module.css) ── */
 .siteFooter{
   border-top:var(--studio-border-width-hairline) solid rgba(245,245,243,0.09);
@@ -425,7 +448,7 @@ const SITE_FOOTER = `
 // Detail page
 // ---------------------------------------------------------------------------
 
-function detailHtml(project: ProjectRow): string {
+function detailHtml(project: ProjectRow, screenshots: AssetRow[]): string {
   const statusLabel: Record<string, string> = {
     published: "Published",
     Live: "Live",
@@ -514,6 +537,7 @@ ${SITE_NAV("/projects")}
           ${project.summary ? `<h2 class="pageSectionTitle">Summary</h2><p class="pageCopy pageSpacer">${project.summary}</p>` : ""}
           ${project.body ? `<h2 class="pageSectionTitle pageSpacerLg">Details</h2><p class="pageCopy pageSpacer pagePreWrap">${project.body}</p>` : ""}
           ${project.updates_future_plans ? `<h2 class="pageSectionTitle pageSpacerLg">Updates &amp; Future Plans</h2><p class="pageCopy pageSpacer pagePreWrap">${project.updates_future_plans}</p>` : ""}
+          ${screenshots.length > 0 ? `<div class="galleryGrid">${screenshots.map((s) => `<img class="galleryImage" src="${s.url}" alt="Screenshot" loading="lazy" />`).join("")}</div>` : ""}
         </div>
         <aside>${asideHtml}</aside>
       </div>
@@ -588,7 +612,23 @@ export async function onRequestGet(context: {
       });
     }
 
-    return new Response(detailHtml(data as ProjectRow), {
+    const project = data as ProjectRow;
+
+    // Fetch screenshots (image assets linked to this project)
+    let screenshots: AssetRow[] = [];
+    try {
+      const { data: assets } = await admin
+        .from("assets")
+        .select("id, url, type")
+        .eq("project_id", project.id)
+        .eq("type", "image")
+        .order("created_at", { ascending: true });
+      if (assets) screenshots = assets as AssetRow[];
+    } catch {
+      // Screenshots are optional — don't fail the page
+    }
+
+    return new Response(detailHtml(project, screenshots), {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   } catch {
