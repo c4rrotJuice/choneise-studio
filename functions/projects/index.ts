@@ -22,52 +22,66 @@ interface Env {
 }
 
 // ---------------------------------------------------------------------------
-// Shared studio CSS — exact match with content-pages.module.css and
-// project-card.module.css. Uses scoped class names to avoid collisions.
+// Exact studio CSS — values extracted from styles/tokens.css,
+// components/site/chrome.module.css, app/content-pages.module.css,
+// and components/project/project-card.module.css.
 // ---------------------------------------------------------------------------
 
 const STUDIO_CSS = `
 :root {
-  --studio-color-bg: #0d0f12;
-  --studio-color-text: rgba(245,245,243,0.88);
-  --studio-color-text-muted: rgba(170,166,154,0.78);
-  --studio-color-sage-300: #7d8b7c;
-  --studio-color-amber-300: #e4c88d;
-  --studio-color-focus: rgba(245,245,243,0.4);
-  --studio-space-1: 0.25rem;
-  --studio-space-2: 0.35rem;
-  --studio-space-3: 0.5rem;
-  --studio-space-4: 0.75rem;
-  --studio-space-5: 1rem;
-  --studio-space-6: 1.25rem;
-  --studio-space-8: 1.75rem;
-  --studio-space-12: 2.75rem;
-  --studio-space-16: 4rem;
-  --studio-space-24: 6rem;
-  --studio-text-xs: 0.7rem;
-  --studio-text-sm: 0.82rem;
-  --studio-text-md: 0.95rem;
-  --studio-text-lg: 1.1rem;
-  --studio-text-xl: 1.3rem;
-  --studio-text-2xl: 1.65rem;
-  --studio-text-3xl: 2rem;
-  --studio-text-4xl: 2.65rem;
-  --studio-text-display: 3.5rem;
-  --studio-font-weight-regular: 400;
-  --studio-font-weight-medium: 500;
-  --studio-font-weight-semibold: 600;
-  --studio-leading-heading: 1.15;
-  --studio-tracking-label: 0.08em;
-  --studio-radius-4: 0.85rem;
-  --studio-radius-pill: 999px;
-  --studio-border-width-hairline: 1px;
-  --studio-border-width-regular: 1.5px;
-  --studio-outline-width: 2px;
-  --studio-container-md: 52rem;
-  --studio-container-readable: 37rem;
-  --studio-duration-fast: 180ms;
-  --studio-ease-standard: cubic-bezier(0.4,0,0.2,1);
-  --studio-ease-enter: cubic-bezier(0.16,1,0.3,1);
+  color-scheme:dark;
+  --studio-color-charcoal-950:#0d0f12;
+  --studio-color-charcoal-900:#111417;
+  --studio-color-stone-300:#aaa69a;
+  --studio-color-off-white:#f5f5f3;
+  --studio-color-sage-300:#a9b8aa;
+  --studio-color-amber-300:#e4c88d;
+  --studio-color-bg:var(--studio-color-charcoal-950);
+  --studio-color-text:var(--studio-color-off-white);
+  --studio-color-text-muted:var(--studio-color-stone-300);
+  --studio-color-focus:var(--studio-color-amber-300);
+  --studio-space-0:0;
+  --studio-space-1:0.25rem;
+  --studio-space-2:0.5rem;
+  --studio-space-3:0.75rem;
+  --studio-space-4:1rem;
+  --studio-space-5:1.25rem;
+  --studio-space-6:1.5rem;
+  --studio-space-8:2rem;
+  --studio-space-10:2.5rem;
+  --studio-space-12:3rem;
+  --studio-space-16:4rem;
+  --studio-space-24:6rem;
+  --studio-radius-4:0.5rem;
+  --studio-radius-pill:999rem;
+  --studio-border-width-hairline:1px;
+  --studio-border-width-regular:1px;
+  --studio-outline-width:1px;
+  --studio-outline-offset:0.1875rem;
+  --studio-font-sans:"Space Grotesk","Inter","Avenir Next",system-ui,sans-serif;
+  --studio-font-weight-regular:400;
+  --studio-font-weight-medium:500;
+  --studio-font-weight-semibold:600;
+  --studio-leading-heading:1.08;
+  --studio-tracking-tight:0;
+  --studio-tracking-label:0.16em;
+  --studio-text-xs:0.75rem;
+  --studio-text-sm:0.875rem;
+  --studio-text-md:1rem;
+  --studio-text-lg:1.125rem;
+  --studio-text-xl:1.375rem;
+  --studio-text-2xl:1.75rem;
+  --studio-text-3xl:2.5rem;
+  --studio-text-4xl:3.75rem;
+  --studio-text-display:5.5rem;
+  --studio-layer-nav:20;
+  --studio-container-md:64rem;
+  --studio-container-readable:42rem;
+  --studio-duration-fast:160ms;
+  --studio-ease-standard:cubic-bezier(0.2,0,0,1);
+  --studio-ease-enter:cubic-bezier(0.16,1,0.3,1);
+  --studio-container-page:min(100% - 3rem,90rem);
+  --studio-leading-tight:0.96;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -75,26 +89,91 @@ html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{
   background:var(--studio-color-bg);
   color:var(--studio-color-text);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-family:var(--studio-font-sans);
   font-size:var(--studio-text-md);
-  line-height:1.65;
+  line-height:1.55;
   min-height:100vh
 }
 a{color:inherit;text-decoration:none}
 
-/* ── Nav ── */
-.pageNav{
-  align-items:center;display:flex;gap:var(--studio-space-6);
-  padding:var(--studio-space-5) var(--studio-space-6)
+/* ═══════════════════════════════════════════════════════════════════════════
+   NAV (exact match: components/site/chrome.module.css + tokens.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.siteNav{
+  align-items:center;
+  display:grid;
+  gap:var(--studio-space-4);
+  grid-template-columns:auto 1fr auto;
+  min-height:5.5rem;
+  position:relative;
+  z-index:var(--studio-layer-nav);
+  max-width:var(--studio-container-page);
+  margin:0 auto;
+  padding-inline:var(--studio-space-6)
 }
-.pageNav a{
-  color:var(--studio-color-text-muted);font-size:var(--studio-text-sm);
+.siteLogo{
+  color:var(--studio-color-text-muted);
+  display:inline-flex;
+  font-family:var(--studio-font-sans);
+  font-size:var(--studio-text-xl);
+  font-weight:var(--studio-font-weight-regular);
+  letter-spacing:var(--studio-tracking-tight);
+  line-height:var(--studio-leading-heading);
+  text-decoration:none
+}
+.siteLogo:focus-visible{
+  outline:var(--studio-outline-width) solid var(--studio-color-focus);
+  outline-offset:var(--studio-outline-offset)
+}
+.navLinks{
+  align-items:center;
+  display:flex;
+  gap:clamp(var(--studio-space-5),3vw,var(--studio-space-10));
+  justify-content:center
+}
+.navLink{
+  color:rgba(170,166,154,0.86);
+  font-size:var(--studio-text-sm);
+  line-height:var(--studio-leading-heading);
+  position:relative;
+  text-decoration:none;
   transition:color var(--studio-duration-fast) var(--studio-ease-standard)
 }
-.pageNav a:hover,.pageNav a.active{color:var(--studio-color-text)}
-.pageNav a.active{font-weight:var(--studio-font-weight-semibold)}
+.navLink:hover,.navLink:focus-visible,.navLinkActive{color:var(--studio-color-text)}
+.navLink:focus-visible{
+  outline:var(--studio-outline-width) solid var(--studio-color-focus);
+  outline-offset:var(--studio-outline-offset)
+}
+.navLinkActive::after{
+  background:var(--studio-color-stone-300);
+  border-radius:var(--studio-radius-pill);
+  height:0.25rem;width:0.25rem;
+  content:"";
+  position:absolute;
+  top:calc(100% + var(--studio-space-2));
+  left:50%;
+  transform:translateX(-50%)
+}
+.navCta{
+  background:rgba(245,245,243,0.14);
+  border:var(--studio-border-width-regular) solid rgba(245,245,243,0.13);
+  border-radius:var(--studio-radius-pill);
+  color:var(--studio-color-text);
+  display:inline-flex;
+  align-items:center;
+  font-size:var(--studio-text-sm);
+  font-weight:var(--studio-font-weight-medium);
+  line-height:var(--studio-leading-heading);
+  padding:var(--studio-space-2) var(--studio-space-5);
+  text-decoration:none;
+  transition:background var(--studio-duration-fast) var(--studio-ease-standard)
+}
+.navCta:hover{background:rgba(245,245,243,0.22)}
+.navCta::after{content:"↗";font-size:1.05em;line-height:1;margin-left:var(--studio-space-3)}
 
-/* ── Shell (content-pages.module.css) ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGE SHELL + HERO (exact match: app/content-pages.module.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .pageShell{
   background:
     linear-gradient(115deg,rgba(13,15,18,0.98) 0%,rgba(13,15,18,0.86) 52%,rgba(13,15,18,0.94) 100%),
@@ -103,11 +182,7 @@ a{color:inherit;text-decoration:none}
   border-bottom:var(--studio-border-width-hairline) solid rgba(245,245,243,0.08);
   position:relative
 }
-
-/* ── Container ── */
 .pageContainer{margin:0 auto;max-width:var(--studio-container-md);padding-inline:var(--studio-space-6)}
-
-/* ── Hero (content-pages.module.css) ── */
 .pageHero{
   animation:page-rise 680ms var(--studio-ease-enter) both;
   display:grid;gap:var(--studio-space-8);
@@ -139,7 +214,7 @@ a{color:inherit;text-decoration:none}
   color:rgba(245,245,243,0.9);
   font-size:clamp(var(--studio-text-3xl),6vw,var(--studio-text-display));
   font-weight:var(--studio-font-weight-regular);
-  letter-spacing:0;line-height:0.98;
+  letter-spacing:0;line-height:var(--studio-leading-tight);
   max-width:13ch
 }
 .pageCopy{
@@ -149,7 +224,9 @@ a{color:inherit;text-decoration:none}
   max-width:var(--studio-container-readable)
 }
 
-/* ── Section (content-pages.module.css) ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION (exact match: app/content-pages.module.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .pageSection{
   animation:page-rise 680ms var(--studio-ease-enter) both;
   border-top:var(--studio-border-width-hairline) solid rgba(245,245,243,0.08);
@@ -157,7 +234,6 @@ a{color:inherit;text-decoration:none}
   padding-block:clamp(var(--studio-space-12),8vw,var(--studio-space-24))
 }
 .pageSection:first-child{border-top:0}
-
 .pageSectionHeader{
   display:grid;gap:var(--studio-space-4);
   margin-bottom:var(--studio-space-8);
@@ -170,13 +246,17 @@ a{color:inherit;text-decoration:none}
   letter-spacing:0;line-height:1.04
 }
 
-/* ── Project grid (content-pages.module.css) ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROJECT GRID (exact match: app/content-pages.module.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .pageProjectGrid{
   display:grid;gap:var(--studio-space-6);
   grid-template-columns:repeat(2,minmax(0,1fr))
 }
 
-/* ── Project card (project-card.module.css) ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROJECT CARD (exact match: components/project/project-card.module.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .projectCard{
   background:
     linear-gradient(145deg,rgba(245,245,243,0.07),rgba(245,245,243,0.025)),
@@ -202,12 +282,10 @@ a{color:inherit;text-decoration:none}
 }
 .projectCard:focus-visible{
   outline:var(--studio-outline-width) solid var(--studio-color-focus);
-  outline-offset:2px
+  outline-offset:var(--studio-outline-offset)
 }
 
-.cardTop,.cardMeta{
-  align-items:center;display:flex;justify-content:space-between
-}
+.cardTop,.cardMeta{align-items:center;display:flex;justify-content:space-between}
 .cardStatus{
   align-items:center;color:rgba(245,245,243,0.7);
   display:inline-flex;font-size:var(--studio-text-xs);
@@ -244,17 +322,17 @@ a{color:inherit;text-decoration:none}
 }
 .cardDesc{color:rgba(170,166,154,0.78);font-size:var(--studio-text-sm);line-height:1.65}
 
-/* ── Hosting stack ── */
+/* Hosting stack */
 .cardHosting{color:rgba(170,166,154,0.7);display:grid;font-size:var(--studio-text-xs);gap:var(--studio-space-2);line-height:1.5}
 .cardHostingItem{display:grid;grid-template-columns:auto 1fr;gap:var(--studio-space-2);align-items:baseline}
 .cardHostingKey{color:rgba(170,166,154,0.55);font-weight:var(--studio-font-weight-medium);white-space:nowrap}
 .cardHostingKey::after{content:":"}
 .cardHostingValue{color:rgba(245,245,243,0.62);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* ── Deployed URL ── */
+/* Deployed URL */
 .cardUrl{color:rgba(170,166,154,0.66);font-size:var(--studio-text-xs);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* ── Tech stack ── */
+/* Tech stack */
 .cardTech{display:flex;flex-wrap:wrap;gap:var(--studio-space-2)}
 .cardTechBadge{
   background:rgba(245,245,243,0.06);
@@ -266,7 +344,7 @@ a{color:inherit;text-decoration:none}
   white-space:nowrap
 }
 
-/* ── Card meta ── */
+/* Card footer meta */
 .cardMeta{align-self:end;color:rgba(170,166,154,0.68);font-size:var(--studio-text-sm);line-height:var(--studio-leading-heading)}
 .cardVersion{
   border:var(--studio-border-width-hairline) solid rgba(245,245,243,0.11);
@@ -276,7 +354,9 @@ a{color:inherit;text-decoration:none}
   padding:var(--studio-space-1) var(--studio-space-3)
 }
 
-/* ── Empty state ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   EMPTY STATE (exact match: app/content-pages.module.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .pageEmpty{
   background:
     linear-gradient(145deg,rgba(245,245,243,0.04),rgba(245,245,243,0.015)),
@@ -290,64 +370,104 @@ a{color:inherit;text-decoration:none}
 .pageEmptyTitle{color:rgba(245,245,243,0.62);font-size:var(--studio-text-lg);font-weight:var(--studio-font-weight-regular);line-height:var(--studio-leading-heading)}
 .pageEmptyCopy{color:rgba(170,166,154,0.64);font-size:var(--studio-text-sm);line-height:1.7;max-width:28rem}
 
-/* ── Footer ── */
-.pageFooter{
-  border-top:var(--studio-border-width-hairline) solid rgba(245,245,243,0.08);
-  color:var(--studio-color-text-muted);
-  font-size:var(--studio-text-sm);
-  padding:var(--studio-space-8) var(--studio-space-6);
-  text-align:center
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOOTER (exact match: components/site/chrome.module.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.siteFooter{
+  border-top:var(--studio-border-width-hairline) solid rgba(245,245,243,0.09);
+  content-visibility:auto;contain-intrinsic-size:auto 20rem;
+  padding-block:var(--studio-space-12) var(--studio-space-8)
 }
-
-/* ── Detail page ── */
-.pageSplit{
+.footerGrid{
   display:grid;
-  gap:clamp(var(--studio-space-8),7vw,var(--studio-space-16));
-  grid-template-columns:minmax(0,0.8fr) minmax(18rem,1fr)
+  gap:clamp(var(--studio-space-12),10vw,var(--studio-space-24));
+  grid-template-columns:minmax(13rem,0.7fr) minmax(0,1fr);
+  max-width:var(--studio-container-page);
+  margin:0 auto;
+  padding-inline:var(--studio-space-6)
 }
-.pageMetaLabel{
-  color:var(--studio-color-amber-300);
+.footerManifesto{align-content:start;display:grid;gap:var(--studio-space-6)}
+.footerManifesto p{
+  color:rgba(170,166,154,0.74);
+  font-size:var(--studio-text-sm);line-height:1.6;margin:0
+}
+.footerColumns{
+  display:grid;gap:var(--studio-space-8);
+  grid-template-columns:repeat(5,minmax(0,1fr))
+}
+.footerColumn{min-width:0}
+.footerHeading{
+  color:rgba(245,245,243,0.82);
   font-size:var(--studio-text-xs);
   font-weight:var(--studio-font-weight-semibold);
   letter-spacing:var(--studio-tracking-label);
   line-height:var(--studio-leading-heading);
-  text-transform:uppercase;
-  margin-bottom:var(--studio-space-3)
+  margin:0 0 var(--studio-space-4);
+  text-transform:uppercase
 }
-.pageMetaValue{
-  color:rgba(245,245,243,0.88);
-  font-size:var(--studio-text-xl);
-  font-weight:var(--studio-font-weight-regular);
-  line-height:var(--studio-leading-heading)
-}
-.pageList{
-  color:rgba(170,166,154,0.8);
+.footerLinks{display:grid;gap:var(--studio-space-3);list-style:none;margin:0;padding:0}
+.footerLinks a{
+  color:rgba(170,166,154,0.78);
   font-size:var(--studio-text-sm);
-  line-height:1.68;
-  display:grid;gap:var(--studio-space-3);
-  padding-left:var(--studio-space-5)
+  line-height:var(--studio-leading-heading);
+  text-decoration:none;
+  transition:color var(--studio-duration-fast) var(--studio-ease-standard)
 }
-.pageList a{color:rgba(245,245,243,0.72)}
-.pageList a:hover{text-decoration:underline}
-.pageAsideBlock{margin-bottom:var(--studio-space-6)}
-.pageAsideTitle{margin-top:var(--studio-space-8)}
-.pagePreWrap{white-space:pre-wrap}
-.pageDetailLink{color:rgba(245,245,243,0.72)}
-.pageDetailLink:hover{text-decoration:underline}
+.footerLinks a:hover{color:var(--studio-color-text)}
+.footerLinks a:focus-visible{
+  outline:var(--studio-outline-width) solid var(--studio-color-focus);
+  outline-offset:var(--studio-outline-offset)
+}
+.footerBottom{
+  align-items:center;
+  border-top:var(--studio-border-width-hairline) solid rgba(245,245,243,0.08);
+  display:flex;gap:var(--studio-space-6);
+  justify-content:space-between;
+  margin-top:var(--studio-space-12);
+  padding-top:var(--studio-space-8);
+  max-width:var(--studio-container-page);
+  margin-inline:auto;
+  padding-inline:var(--studio-space-6)
+}
+.footerBottom p{color:rgba(170,166,154,0.74);font-size:var(--studio-text-sm);line-height:1.6;margin:0}
+.socialLinks{display:flex;flex-wrap:wrap;gap:var(--studio-space-8)}
+.socialLinks a{
+  color:rgba(170,166,154,0.78);
+  font-size:var(--studio-text-sm);
+  line-height:var(--studio-leading-heading);
+  text-decoration:none;
+  transition:color var(--studio-duration-fast) var(--studio-ease-standard)
+}
+.socialLinks a:hover{color:var(--studio-color-text)}
+.socialLinks a:focus-visible{
+  outline:var(--studio-outline-width) solid var(--studio-color-focus);
+  outline-offset:var(--studio-outline-offset)
+}
 
-/* ── Animations ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATIONS + RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
 @keyframes page-rise{from{opacity:0;transform:translate3d(0,0.75rem,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 
-/* ── Responsive ── */
 @media(max-width:58rem){
-  .pageProjectGrid,.pageSplit{grid-template-columns:1fr}
+  .siteNav{align-items:start;grid-template-columns:1fr;min-height:auto;padding-block:var(--studio-space-5)}
+  .navCta{display:none}
+  .navLinks{gap:var(--studio-space-5);justify-content:start;overflow-x:auto;padding-block:var(--studio-space-2);scrollbar-width:none}
+  .navLinks::-webkit-scrollbar{display:none}
+  .pageProjectGrid{grid-template-columns:1fr}
   .pageHero{padding-block:var(--studio-space-12) var(--studio-space-16)}
+  .footerGrid{grid-template-columns:1fr}
+  .footerColumns{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:34rem){
+  .siteNav{padding-block:var(--studio-space-4)}
+  .navLinks{gap:var(--studio-space-4)}
   .pageTitle{font-size:clamp(2.55rem,13vw,3.2rem)}
   .pageSection{contain-intrinsic-size:auto 44rem;padding-block:var(--studio-space-12)}
   .projectCard{padding:var(--studio-space-5);min-height:12rem}
   .cardTitle{font-size:var(--studio-text-lg)}
+  .footerColumns{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .footerBottom{align-items:start;display:grid}
 }
 @media(prefers-reduced-motion:reduce){
   .pageHero,.pageSection{animation:none}
@@ -355,7 +475,82 @@ a{color:inherit;text-decoration:none}
 `;
 
 // ---------------------------------------------------------------------------
-// HTML page renderer
+// Shared nav HTML
+// ---------------------------------------------------------------------------
+
+const SITE_NAV = (active: string) => `
+<nav class="siteNav" aria-label="Primary">
+  <a class="siteLogo" href="/">choneise</a>
+  <div class="navLinks">
+    <a class="navLink${active === "/" ? " navLinkActive" : ""}" href="/">Studio</a>
+    <a class="navLink${active === "/projects" ? " navLinkActive" : ""}" href="/projects">Projects</a>
+    <a class="navLink${active === "/experiments" ? " navLinkActive" : ""}" href="/experiments">Experiments</a>
+    <a class="navLink${active === "/about" ? " navLinkActive" : ""}" href="/about">About</a>
+  </div>
+  <a class="navCta" href="/login">Enter Studio</a>
+</nav>`;
+
+// ---------------------------------------------------------------------------
+// Shared footer HTML
+// ---------------------------------------------------------------------------
+
+const SITE_FOOTER = `
+<footer class="siteFooter">
+  <div class="footerGrid">
+    <div class="footerManifesto">
+      <a class="siteLogo" href="/">choneise</a>
+      <p>Building useful things on the web.</p>
+    </div>
+    <nav class="footerColumns" aria-label="Footer">
+      <div class="footerColumn">
+        <h2 class="footerHeading">Studio</h2>
+        <ul class="footerLinks">
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </div>
+      <div class="footerColumn">
+        <h2 class="footerHeading">Projects</h2>
+        <ul class="footerLinks">
+          <li><a href="/projects">Featured Work</a></li>
+          <li><a href="/#current-builds">Current Builds</a></li>
+        </ul>
+      </div>
+      <div class="footerColumn">
+        <h2 class="footerHeading">Tools</h2>
+        <ul class="footerLinks">
+          <li><a href="/projects/grade-converter">Grade Converter</a></li>
+          <li><a href="/projects/fee-calculator">Fee Calculator</a></li>
+        </ul>
+      </div>
+      <div class="footerColumn">
+        <h2 class="footerHeading">Experiments</h2>
+        <ul class="footerLinks">
+          <li><a href="/experiments#multilingual-explorer">Explorer</a></li>
+          <li><a href="/experiments#quiet-journal">Journal</a></li>
+        </ul>
+      </div>
+      <div class="footerColumn">
+        <h2 class="footerHeading">Notes</h2>
+        <ul class="footerLinks">
+          <li><a href="/about#philosophy">Philosophy</a></li>
+          <li><a href="/#current-builds">Updates</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="footerBottom">
+    <p>&copy; ${new Date().getFullYear()} Choneise Studio</p>
+    <div class="socialLinks">
+      <a href="/projects">Projects</a>
+      <a href="/experiments">Experiments</a>
+      <a href="mailto:hello@choneise.com">Email</a>
+    </div>
+  </div>
+</footer>`;
+
+// ---------------------------------------------------------------------------
+// Page renderer
 // ---------------------------------------------------------------------------
 
 function pageHtml(projects: ProjectRow[]): string {
@@ -365,8 +560,6 @@ function pageHtml(projects: ProjectRow[]): string {
     Building: "Building",
     Experiment: "Experiment",
     Dormant: "Dormant",
-    draft: "Draft",
-    archived: "Archived",
   };
 
   const cards =
@@ -462,9 +655,7 @@ function pageHtml(projects: ProjectRow[]): string {
                  <span class="cardBody">
                    <span class="cardTitle">${p.title}</span>
                    <span class="cardDesc">${p.description ?? ""}</span>
-                   ${hostingHtml}
-                   ${urlHtml}
-                   ${techHtml}
+                   ${hostingHtml}${urlHtml}${techHtml}
                  </span>
                  <span class="cardMeta">
                    <span>${p.kind ?? "Project"}</span>
@@ -491,12 +682,7 @@ function pageHtml(projects: ProjectRow[]): string {
 <style>${STUDIO_CSS}</style>
 </head>
 <body>
-<nav class="pageNav">
-  <a href="/">Studio</a>
-  <a href="/projects" class="active">Projects</a>
-  <a href="/experiments">Experiments</a>
-  <a href="/about">About</a>
-</nav>
+${SITE_NAV("/projects")}
 <main>
   <div class="pageShell">
     <div class="pageContainer">
@@ -521,7 +707,7 @@ function pageHtml(projects: ProjectRow[]): string {
     </section>
   </div>
 </main>
-<footer class="pageFooter">&copy; ${new Date().getFullYear()} Choneise Studio</footer>
+${SITE_FOOTER}
 </body>
 </html>`;
 }
@@ -552,11 +738,10 @@ export async function onRequestGet(context: {
       .eq("public", true)
       .order("created_at", { ascending: false });
 
-    if (error) {
+    if (error)
       return new Response(pageHtml([]), {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
-    }
 
     return new Response(pageHtml((data ?? []) as ProjectRow[]), {
       headers: { "Content-Type": "text/html; charset=utf-8" },
