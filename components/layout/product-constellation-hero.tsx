@@ -1,9 +1,47 @@
-import {
-  getConstellationProjects,
-  getOrbitGroup,
-  type ConstellationNode,
-} from "@/lib/content/projects-constellation";
 import styles from "./product-constellation-hero.module.css";
+
+/* ------------------------------------------------------------------ */
+/*  Static constellation data (no DB fetch — Cloudflare static-safe)   */
+/* ------------------------------------------------------------------ */
+
+type ConstellationNode = {
+  id: string;
+  name: string;
+  status: "Live" | "Building" | "Active" | "Archived";
+  is_experiment: boolean;
+};
+
+const CONSTELLATION_NODES: ConstellationNode[] = [
+  {
+    id: "grade-converter",
+    name: "Grade Converter",
+    status: "Live",
+    is_experiment: false,
+  },
+  {
+    id: "runete-dev",
+    name: "runete.dev",
+    status: "Building",
+    is_experiment: false,
+  },
+  { id: "writior", name: "Writior", status: "Building", is_experiment: true },
+  {
+    id: "quiet-journal",
+    name: "Quiet Journal",
+    status: "Archived",
+    is_experiment: true,
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Orbit assignment                                                   */
+/* ------------------------------------------------------------------ */
+
+function getOrbitGroup(node: ConstellationNode): "inner" | "middle" | "outer" {
+  if (node.is_experiment) return "outer";
+  if (node.status === "Live") return "inner";
+  return "middle";
+}
 
 /* ------------------------------------------------------------------ */
 /*  Orbit geometry                                                     */
@@ -14,18 +52,20 @@ type OrbitDef = {
   ry: number;
   rotate: number;
   label: string;
+  /** CSS animation duration in seconds for the orbit spin */
+  spinDuration: number;
 };
 
 const ORBITS: OrbitDef[] = [
-  { rx: 148, ry: 115, rotate: -14, label: "inner" },
-  { rx: 226, ry: 172, rotate: 8, label: "middle" },
-  { rx: 306, ry: 228, rotate: -7, label: "outer" },
+  { rx: 148, ry: 115, rotate: -14, label: "inner", spinDuration: 24 },
+  { rx: 226, ry: 172, rotate: 8, label: "middle", spinDuration: 32 },
+  { rx: 306, ry: 228, rotate: -7, label: "outer", spinDuration: 40 },
 ];
 
 const CENTER = { cx: 450, cy: 360 };
 
 /* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
+/*  Position helpers                                                   */
 /* ------------------------------------------------------------------ */
 
 function distributeOnRing(
@@ -37,7 +77,6 @@ function distributeOnRing(
   if (n === 0) return [];
 
   return nodes.map((node, i) => {
-    // Deterministic placement: spread evenly, offset per orbit group
     const angle =
       (2 * Math.PI * (i + indexOffset)) / n +
       (orbit.label === "inner" ? -0.4 : orbit.label === "outer" ? 0.6 : 0);
@@ -62,7 +101,7 @@ const STATUS_LABELS: Record<ConstellationNode["status"], string> = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Sub-components (inline SVG)                                        */
+/*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
 
 function OrbitRings() {
@@ -88,7 +127,6 @@ function OrbitRings() {
 function CenterNode() {
   return (
     <g className={styles.centerNode}>
-      {/* Subtle backdrop circle */}
       <circle
         cx={CENTER.cx}
         cy={CENTER.cy}
@@ -120,21 +158,26 @@ function CenterNode() {
 }
 
 function ConnectionLine({
-  x,
-  y,
+  fromX,
+  fromY,
+  toX,
+  toY,
   orbitLabel,
 }: {
-  x: number;
-  y: number;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
   orbitLabel: string;
 }) {
-  const opacity = orbitLabel === "inner" ? 0.18 : orbitLabel === "middle" ? 0.12 : 0.08;
+  const opacity =
+    orbitLabel === "inner" ? 0.18 : orbitLabel === "middle" ? 0.12 : 0.08;
   return (
     <line
-      x1={CENTER.cx}
-      y1={CENTER.cy}
-      x2={x}
-      y2={y}
+      x1={fromX}
+      y1={fromY}
+      x2={toX}
+      y2={toY}
       stroke="rgba(245, 245, 243, 0.38)"
       strokeOpacity={opacity}
       strokeWidth="0.75"
@@ -148,28 +191,24 @@ function ProjectNode({
   x,
   y,
   index,
-  totalOnRing,
+  orbit,
 }: {
   node: ConstellationNode;
   x: number;
   y: number;
   index: number;
-  totalOnRing: number;
+  orbit: OrbitDef;
 }) {
   const cardW = 124;
   const cardH = 46;
   const rx = x - cardW / 2;
   const ry = y - cardH / 2;
 
-  // Stagger animation delay
-  const delay = (index / Math.max(totalOnRing, 1)) * 3;
-
   return (
     <g
       className={styles.projectNode}
       style={{
-        animationDelay: `${delay.toFixed(2)}s`,
-        animationDuration: `${(7 + (index % 5)).toFixed(0)}s`,
+        animationDuration: `${orbit.spinDuration}s`,
       }}
     >
       <rect
@@ -182,7 +221,6 @@ function ProjectNode({
         stroke="rgba(245, 245, 243, 0.1)"
         strokeWidth="0.75"
       />
-      {/* Status dot */}
       <circle
         cx={rx + 14}
         cy={ry + cardH / 2}
@@ -190,15 +228,9 @@ function ProjectNode({
         fill={STATUS_COLORS[node.status]}
         opacity={0.9}
       />
-      {/* Project name */}
-      <text
-        x={rx + 26}
-        y={ry + 18}
-        className={styles.nodeName}
-      >
-        {node.name.length > 17 ? node.name.slice(0, 15) + "…" : node.name}
+      <text x={rx + 26} y={ry + 18} className={styles.nodeName}>
+        {node.name.length > 17 ? node.name.slice(0, 15) + "\u2026" : node.name}
       </text>
-      {/* Status label */}
       <text
         x={rx + 26}
         y={ry + 34}
@@ -215,27 +247,61 @@ function ProjectNode({
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 
-export async function ProductConstellationHero() {
-  const projects = await getConstellationProjects();
+export function ProductConstellationHero() {
+  // Group nodes by orbit ring
+  const innerNodes = CONSTELLATION_NODES.filter(
+    (p) => getOrbitGroup(p) === "inner",
+  );
+  const middleNodes = CONSTELLATION_NODES.filter(
+    (p) => getOrbitGroup(p) === "middle",
+  );
+  const outerNodes = CONSTELLATION_NODES.filter(
+    (p) => getOrbitGroup(p) === "outer",
+  );
 
-  // Group by orbit
-  const innerNodes: ConstellationNode[] = [];
-  const middleNodes: ConstellationNode[] = [];
-  const outerNodes: ConstellationNode[] = [];
-
-  for (const p of projects) {
-    const group = getOrbitGroup(p);
-    if (group === "inner") innerNodes.push(p);
-    else if (group === "middle") middleNodes.push(p);
-    else outerNodes.push(p);
-  }
-
-  // Distribute on rings
   const innerPositions = distributeOnRing(innerNodes, ORBITS[0], 0);
   const middlePositions = distributeOnRing(middleNodes, ORBITS[1], 0);
   const outerPositions = distributeOnRing(outerNodes, ORBITS[2], 0);
 
-  const allPositions = [...innerPositions, ...middlePositions, ...outerPositions];
+  function renderOrbitGroup(
+    positions: ReturnType<typeof distributeOnRing>,
+    orbit: OrbitDef,
+  ) {
+    if (positions.length === 0) return null;
+
+    return (
+      <g
+        key={`orbit-${orbit.label}`}
+        className={styles.orbitGroup}
+        style={{
+          animationDuration: `${orbit.spinDuration}s`,
+        }}
+      >
+        {/* Connections from center to each node */}
+        {positions.map(({ x, y, node }) => (
+          <ConnectionLine
+            key={`conn-${node.id}`}
+            fromX={CENTER.cx}
+            fromY={CENTER.cy}
+            toX={x}
+            toY={y}
+            orbitLabel={orbit.label}
+          />
+        ))}
+        {/* Project nodes */}
+        {positions.map(({ node, x, y }, i) => (
+          <ProjectNode
+            key={`node-${node.id}`}
+            node={node}
+            x={x}
+            y={y}
+            index={i}
+            orbit={orbit}
+          />
+        ))}
+      </g>
+    );
+  }
 
   return (
     <div className={styles.root} aria-hidden="true">
@@ -247,12 +313,17 @@ export async function ProductConstellationHero() {
         focusable="false"
       >
         <defs>
-          <filter id="cn-subtle-blur" x="-20%" y="-20%" width="140%" height="140%">
+          <filter
+            id="cn-subtle-blur"
+            x="-20%"
+            y="-20%"
+            width="140%"
+            height="140%"
+          >
             <feGaussianBlur stdDeviation="0.6" />
           </filter>
         </defs>
 
-        {/* Background ambiance dots */}
         <g className={styles.ambiance}>
           <circle cx="164" cy="142" r="1.2" opacity="0.22" />
           <circle cx="688" cy="108" r="1" opacity="0.18" />
@@ -263,49 +334,9 @@ export async function ProductConstellationHero() {
 
         <OrbitRings />
 
-        {/* Connections */}
-        <g className={styles.connections}>
-          {allPositions.map(({ x, y, node }, i) => (
-            <ConnectionLine
-              key={`conn-${node.id}-${i}`}
-              x={x}
-              y={y}
-              orbitLabel={getOrbitGroup(node)}
-            />
-          ))}
-        </g>
-
-        {/* Project nodes */}
-        {innerPositions.map(({ node, x, y }, i) => (
-          <ProjectNode
-            key={`inner-${node.id}`}
-            node={node}
-            x={x}
-            y={y}
-            index={i}
-            totalOnRing={innerNodes.length}
-          />
-        ))}
-        {middlePositions.map(({ node, x, y }, i) => (
-          <ProjectNode
-            key={`middle-${node.id}`}
-            node={node}
-            x={x}
-            y={y}
-            index={i}
-            totalOnRing={middleNodes.length}
-          />
-        ))}
-        {outerPositions.map(({ node, x, y }, i) => (
-          <ProjectNode
-            key={`outer-${node.id}`}
-            node={node}
-            x={x}
-            y={y}
-            index={i}
-            totalOnRing={outerNodes.length}
-          />
-        ))}
+        {renderOrbitGroup(innerPositions, ORBITS[0])}
+        {renderOrbitGroup(middlePositions, ORBITS[1])}
+        {renderOrbitGroup(outerPositions, ORBITS[2])}
 
         <CenterNode />
       </svg>

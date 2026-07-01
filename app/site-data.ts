@@ -1,15 +1,16 @@
-import type { ProjectCardProps } from "@/components/project/project-card"
+import type { ProjectCardProps } from "@/components/project/project-card";
 
 export const navLinks = [
   { label: "Studio", href: "/" },
   { label: "Projects", href: "/projects" },
   { label: "Experiments", href: "/experiments" },
   { label: "About", href: "/about" },
-] as const
+] as const;
 
 export const featuredProjects: readonly ProjectCardProps[] = [
   {
-    description: "Convert grades across different systems. Simple, accurate, useful.",
+    description:
+      "Convert grades across different systems. Simple, accurate, useful.",
     href: "/projects#grade-converter",
     kind: "Tool",
     status: "Live",
@@ -17,30 +18,32 @@ export const featuredProjects: readonly ProjectCardProps[] = [
     version: "v1.0.2",
   },
   {
-    description: "Estimate mobile money transfer costs before sending everyday payments.",
-    href: "/projects#fee-calculator",
+    description: "A personal dev portfolio and playground for web experiments.",
+    href: "/projects#runete-dev",
     kind: "Tool",
     status: "Building",
-    title: "Mobile Money Fee Calculator",
-    version: "v0.4.0",
+    title: "runete.dev",
+    version: "v0.2.0",
   },
   {
-    description: "Explore meanings across languages, contexts, and translation paths.",
-    href: "/experiments#multilingual-explorer",
+    description:
+      "A focused writing tool for drafts, notes, and long-form thinking.",
+    href: "/experiments#writior",
     kind: "Experiment",
-    status: "Experiment",
-    title: "Multilingual Explorer",
-    version: "v0.3.1",
+    status: "Building",
+    title: "Writior",
+    version: "v0.1.0",
   },
   {
-    description: "A minimal writing space for quiet notes, drafts, and public thinking.",
+    description:
+      "A minimal writing space for quiet notes, drafts, and public thinking.",
     href: "/experiments#quiet-journal",
     kind: "Experiment",
     status: "Dormant",
     title: "Quiet Journal",
     version: "v0.1.0",
   },
-]
+];
 
 export const currentBuilds = [
   {
@@ -58,7 +61,7 @@ export const currentBuilds = [
     title: "Language-aware workflows",
     copy: "Testing practical multilingual interfaces for learning, publishing, and everyday web tasks.",
   },
-] as const
+] as const;
 
 export const philosophyPrinciples = [
   {
@@ -73,7 +76,7 @@ export const philosophyPrinciples = [
     title: "Move deliberately",
     copy: "Choose slower decisions when they protect quality, focus, and long-term ownership.",
   },
-] as const
+] as const;
 
 export const footerColumns = [
   {
@@ -111,4 +114,4 @@ export const footerColumns = [
       { label: "Updates", href: "/#current-builds" },
     ],
   },
-] as const
+] as const;
