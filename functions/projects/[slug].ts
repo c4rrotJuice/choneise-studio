@@ -296,7 +296,12 @@ a{color:inherit;text-decoration:none}
   border:var(--studio-border-width-hairline) solid rgba(245,245,243,0.1);
   border-radius:var(--studio-radius-4);
   width:100%;
-  object-fit:cover
+  object-fit:cover;
+  transition:border-color var(--studio-duration-fast) var(--studio-ease-standard),opacity var(--studio-duration-fast) var(--studio-ease-standard)
+}
+.galleryImage:hover{
+  border-color:rgba(245,245,243,0.28);
+  opacity:0.88
 }
 
 /* ── Footer (exact match: components/site/chrome.module.css) ── */
@@ -537,9 +542,8 @@ ${SITE_NAV("/projects")}
           ${project.summary ? `<h2 class="pageSectionTitle">Summary</h2><p class="pageCopy pageSpacer">${project.summary}</p>` : ""}
           ${project.body ? `<h2 class="pageSectionTitle pageSpacerLg">Details</h2><p class="pageCopy pageSpacer pagePreWrap">${project.body}</p>` : ""}
           ${project.updates_future_plans ? `<h2 class="pageSectionTitle pageSpacerLg">Updates &amp; Future Plans</h2><p class="pageCopy pageSpacer pagePreWrap">${project.updates_future_plans}</p>` : ""}
-          ${screenshots.length > 0 ? `<div class="galleryGrid">${screenshots.map((s) => `<img class="galleryImage" src="${s.url}" alt="Screenshot" loading="lazy" />`).join("")}</div>` : ""}
         </div>
-        <aside>${asideHtml}</aside>
+        <aside>${asideHtml}${screenshots.length > 0 ? `<div class="pageAsideBlock"><p class="pageMetaLabel">Screenshots</p><div class="galleryGrid">${screenshots.map((s) => `<a href="${s.url}" target="_blank" rel="noopener noreferrer"><img class="galleryImage" src="${s.url}" alt="Screenshot" loading="lazy" /></a>`).join("")}</div></div>` : ""}</aside>
       </div>
     </section>
   </div>
